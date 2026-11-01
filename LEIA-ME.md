@@ -1,0 +1,81 @@
+# Finanças — app de gestão financeira pessoal
+
+Next.js + TypeScript + Tailwind + Supabase. Funciona no computador e no celular (pode ser instalado como app).
+
+## O que tem
+
+- **Dashboard**: saldo, receitas, despesas, saldo do período, a pagar, a receber, vencidas, próximos 30 dias, dívidas, limite dos cartões, faturas em aberto e patrimônio. Gráficos de receitas x despesas, categorias, patrimônio, fluxo de caixa, evolução mensal e comparativo. Períodos: semana, mês, trimestre e ano.
+- **Receitas e despesas**: categorias e subcategorias, conta, vencimento, pagamento, forma de pagamento, recorrência (semanal, quinzenal, mensal, anual), observações e situação (pago, pendente, atrasado, que é automático).
+- **Cartões**: vários cartões, limite, fechamento, vencimento, melhor dia de compra, compras parceladas (cada parcela na fatura certa), faturas abertas, fechadas, vencidas e pagas, pagamento parcial de fatura e parcelas futuras.
+- **Contas e carteiras**: corrente, poupança, carteira digital, dinheiro e investimentos, com extrato e saldo após cada movimento. Transferências não contam como receita nem como despesa.
+- **Contas a pagar e a receber**: alertas de atraso, pagamento parcial, histórico e contas recorrentes.
+- **Dívidas**: empréstimos e financiamentos (tabela Price), saldo devedor atualizado, parcelas pagas e pendentes, evolução e previsão de quitação. As parcelas viram contas a pagar.
+- **Planejamento**: limite por categoria (alerta em 80%), reserva de emergência, metas, compras planejadas e projeção do saldo para 30, 90 ou 180 dias.
+- **Relatórios**: resumo, categorias, cartões, fluxo de caixa, patrimônio, endividamento e recorrentes. Exporta em PDF e Excel.
+- **Inteligência financeira**: análises feitas só com os seus dados, mais a ferramenta "Posso gastar R$ X hoje?".
+- **Calendário financeiro** e **Simulador** (empréstimo Price/SAC, à vista x parcelado, antecipação de parcelas, impacto de nova despesa).
+- **Importa** CSV/Excel (extratos), **exporta** Excel, e faz **backup e restauração**.
+- Login com e-mail e senha. Cada pessoa só vê os próprios dados (RLS no banco). Tem modo claro e escuro.
+
+### Como o dinheiro é contado (para não duplicar)
+- Compra no cartão conta como **despesa** na data da compra (parcela 1) e as demais parcelas uma por mês.
+- O **pagamento da fatura** só tira o dinheiro da conta. Não é outra despesa.
+- **Transferência** entre suas contas não é receita nem despesa.
+- Todos os valores são guardados em centavos (sem erro de arredondamento).
+
+---
+
+## Colocar no ar (cerca de 20 minutos, tudo grátis)
+
+Você vai precisar de três contas gratuitas: **Supabase** (banco e login), **GitHub** (guarda o código) e **Vercel** (publica o site).
+
+### 1. Supabase: criar o banco
+1. Entre em https://supabase.com e clique em **New project**. Dê um nome, crie uma senha do banco (guarde-a) e escolha a região **South America (São Paulo)**.
+2. No menu da esquerda, abra **SQL Editor** e clique em **New query**.
+3. Abra o arquivo `supabase/schema.sql` deste projeto no Bloco de Notas, copie tudo, cole no SQL Editor e clique em **Run**. Deve aparecer "Success".
+4. Abra **Project Settings → API** (ou o botão **Connect**) e copie:
+   - **Project URL**: algo como `https://abcd1234.supabase.co`
+   - **Publishable key**: começa com `sb_publishable_`. Em projetos antigos ela aparece como **anon public**.
+
+### 2. GitHub: enviar o código
+1. Entre em https://github.com e crie um repositório **privado** (**New repository**), por exemplo `financas`.
+2. Na página do repositório vazio, clique em **uploading an existing file**.
+3. Arraste **o conteúdo** da pasta `financas-app` (as pastas `app`, `components`, `lib` etc. e os arquivos soltos, não a pasta em si) e clique em **Commit changes**.
+
+### 3. Vercel: publicar
+1. Entre em https://vercel.com com a conta do GitHub e clique em **Add New → Project**. Escolha o repositório `financas`.
+2. Em **Environment Variables**, adicione:
+   - `NEXT_PUBLIC_SUPABASE_URL` = a Project URL do passo 1
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` = a Publishable key do passo 1
+3. Clique em **Deploy**. Em 1 ou 2 minutos você recebe um endereço, como `https://financas-xyz.vercel.app`.
+
+### 4. Supabase: liberar o endereço do site
+Em **Authentication → URL Configuration**:
+- **Site URL**: o endereço da Vercel
+- **Redirect URLs**: adicione `https://SEU-ENDERECO.vercel.app/**`
+
+Sem isso, os links de confirmação de e-mail e de recuperação de senha não funcionam.
+
+### 5. Usar
+Abra o endereço, clique em **Criar conta**, confirme o e-mail e pronto. Comece cadastrando as contas, depois os cartões e por fim as receitas e despesas.
+
+**No celular (Android/Chrome):** abra o site, toque no menu ⋮ e depois em **Instalar app** (ou "Adicionar à tela inicial"). **No iPhone (Safari):** botão compartilhar → **Adicionar à Tela de Início**.
+
+---
+
+## Dicas
+- **Backup:** em Configurações → Fazer backup, de vez em quando. O Supabase grátis pausa projetos sem uso por 7 dias. Os dados não se perdem, é só entrar no painel do Supabase e clicar em "Restore".
+- **Importar extrato:** em Configurações → Importar CSV ou Excel. O app reconhece as colunas de data, descrição e valor, e desmarca as linhas que parecem já cadastradas.
+- **E-mails de confirmação:** o Supabase grátis envia poucos e-mails por hora. Se quiser, desligue a confirmação em Authentication → Sign In / Providers → Email → "Confirm email".
+
+## Para desenvolvedores
+```bash
+npm install
+cp .env.example .env.local   # preencha os dois valores
+npm run dev                  # http://localhost:3000
+npm test                     # testes das regras financeiras
+```
+- `supabase/schema.sql`: tabelas, RLS, funções (compra parcelada, empréstimo, pagamento parcial, restauração de backup). Pode rodar de novo sem perder dados.
+- `supabase/test/`: testes de segurança e regras do banco (Postgres local).
+- `lib/finance/`: regras de negócio puras (cartões, saldos, empréstimos, relatórios, projeções, análises), testadas em `tests/`.
+- `lib/store.tsx`: carrega os dados do usuário e faz as operações. `components/forms/`: formulários com validação (zod).

@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-navy-50: #eef2fb;
+  --color-navy-100: #d9e1f5;
+  --color-navy-200: #b3c3eb;
+  --color-navy-300: #8098d9;
+  --color-navy-400: #4f6cc2;
+  --color-navy-500: #3150a6;
+  --color-navy-600: #233c86;
+  --color-navy-700: #1b2f6b;
+  --color-navy-800: #142350;
+  --color-navy-900: #0e1838;
+  --color-navy-950: #080e22;
+  --color-income: #059669;
+  --color-expense: #e11d48;
+  --animate-in: fade-up 180ms ease-out;
+  --animate-sheet: sheet-up 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sheet-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}
+
+html,
+body {
+  @apply bg-slate-50 text-slate-900 antialiased dark:bg-navy-950 dark:text-slate-100;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* inputs de data do iOS sem altura extra */
+input[type="date"] {
+  min-height: 2.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+.recharts-wrapper:focus,
+.recharts-surface:focus {
+  outline: none;
+}
