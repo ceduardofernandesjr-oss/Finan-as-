@@ -99,7 +99,7 @@ export interface FinanceContext {
     installments: { number: number; amount: number; invoice_month: string }[];
     purchase_date: string;
     notes: string;
-  }) => Promise<void>;
+  }) => Promise<string | null>;
   createLoan: (args: {
     loan: NewRow<Loan>;
     category_id: string | null;
@@ -192,7 +192,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         await reload();
       },
       saveCardPurchase: async (a) => {
-        await run(
+        const id = await run(
           db().rpc("save_card_purchase", {
             p_id: a.id ?? null,
             p_card: a.card_id,
@@ -206,6 +206,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
           }),
         );
         await reload();
+        return (id as string | null) ?? null;
       },
       createLoan: async ({ loan, category_id, paid_count, account_id, installments }) => {
         await run(

@@ -13,6 +13,7 @@ Next.js + TypeScript + Tailwind + Supabase. Funciona no computador e no celular 
 - **Planejamento**: limite por categoria (alerta em 80%), reserva de emergência, metas, compras planejadas e projeção do saldo para 30, 90 ou 180 dias.
 - **Relatórios**: resumo, categorias, cartões, fluxo de caixa, patrimônio, endividamento e recorrentes. Exporta em PDF e Excel.
 - **Inteligência financeira**: análises feitas só com os seus dados, mais a ferramenta "Posso gastar R$ X hoje?".
+- **Assistente**: chat em que você escreve gastos e ganhos como falaria ("gastei 45 no mercado ontem", "tênis 300 em 3x no cartão", "recebi 3000 de salário"). Ele identifica valor, categoria, data, conta ou cartão e parcelas, salva com um toque (com opção de desfazer) e responde "quanto gastei este mês?", "saldo", "posso gastar 200?" e "dicas". Funciona sem IA paga: as regras ficam em `lib/finance/assistant.ts` e rodam no aparelho.
 - **Calendário financeiro** e **Simulador** (empréstimo Price/SAC, à vista x parcelado, antecipação de parcelas, impacto de nova despesa).
 - **Importa** CSV/Excel (extratos), **exporta** Excel, e faz **backup e restauração**.
 - Login com e-mail e senha. Cada pessoa só vê os próprios dados (RLS no banco). Tem modo claro e escuro.

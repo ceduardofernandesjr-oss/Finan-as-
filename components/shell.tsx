@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   ArrowDownCircle, ArrowLeftRight, ArrowUpCircle, BarChart3, Brain, CalendarDays, Calculator, CreditCard,
-  HandCoins, Landmark, LayoutDashboard, LogOut, Menu, Moon, Plus, Receipt, Settings, Sun, Target, Wallet, X,
+  HandCoins, Landmark, LayoutDashboard, LogOut, Menu, MessageCircle, Moon, Plus, Receipt, Settings, Sun, Target, Wallet, X,
 } from "lucide-react";
 import { cx, IconButton } from "./ui";
 import { useForms } from "./forms/provider";
@@ -13,6 +13,7 @@ import { useFinance } from "@/lib/store";
 
 export const NAV: { href: string; label: string; icon: typeof LayoutDashboard }[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/assistente", label: "Assistente", icon: MessageCircle },
   { href: "/receitas", label: "Receitas", icon: ArrowUpCircle },
   { href: "/despesas", label: "Despesas", icon: ArrowDownCircle },
   { href: "/cartoes", label: "Cartões", icon: CreditCard },
