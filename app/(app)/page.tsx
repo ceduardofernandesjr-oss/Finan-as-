@@ -2,13 +2,13 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowDownCircle, ArrowUpCircle, CalendarClock, CreditCard, Landmark, PiggyBank, Receipt, Scale, TrendingUp, Wallet } from "lucide-react";
 import { useFinance } from "@/lib/store";
-import { addDays, formatBR, monthKey, monthLabel, monthRange, addMonths, monthStart } from "@/lib/finance/dates";
+import { addDays, formatBR, monthEnd, monthKey, monthLabel, monthRange, addMonths, monthStart } from "@/lib/finance/dates";
 import { accountBalance } from "@/lib/finance/ledger";
 import { cardUsage } from "@/lib/finance/cards";
 import { loanStatus } from "@/lib/finance/loans";
-import { allInvoices, budgetStatus, byCategory, cashFlow, entriesIn, netWorthSeries, pendingCommitments, resultByMonth, totals } from "@/lib/finance/reports";
+import { allInvoices, budgetStatus, byCategory, cashFlow, entriesIn, netWorthSeries, pendingCommitments, projectBalance, resultByMonth, totals } from "@/lib/finance/reports";
 import { analyze } from "@/lib/finance/insights";
-import { sum } from "@/lib/finance/money";
+import { formatMoney, sum } from "@/lib/finance/money";
 import { PageHeader } from "@/components/shell";
 import { PeriodBar, usePeriod } from "@/components/tx-list";
 import { Button, Card, CardTitle, EmptyState, Money, Progress, Skeleton, cx } from "@/components/ui";
@@ -41,6 +41,40 @@ function Stat({
   return href ? <Link href={href}>{body}</Link> : body;
 }
 
+/** Destaque do topo: saldo disponível nas contas, saldo de cada conta e a previsão até o fim do mês. */
+function SaldoDestaque({ balance, accounts, previsto, ate }: { balance: number; accounts: { id: string; name: string; color: string; saldo: number }[]; previsto: number; ate: string }) {
+  return (
+    <Card className="mb-5 overflow-hidden bg-gradient-to-br from-navy-700 to-navy-900 p-5 text-white ring-0 sm:p-6 dark:from-navy-800 dark:to-navy-950">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="flex items-center gap-2 text-sm font-medium text-navy-100">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-white/15"><Wallet className="size-4" /></span>
+            Saldo disponível
+          </p>
+          <p className={cx("mt-2 text-3xl font-bold tracking-tight tabular sm:text-4xl", balance < 0 && "text-rose-200")}>{formatMoney(balance)}</p>
+          <p className="mt-1 text-sm text-navy-100">
+            Previsto para {ate}: <span className={cx("font-semibold tabular", previsto < 0 ? "text-rose-200" : "text-white")}>{formatMoney(previsto)}</span>
+          </p>
+        </div>
+        <Link href="/contas" className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium transition hover:bg-white/25">Ver contas</Link>
+      </div>
+      {accounts.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {accounts.map((a) => (
+            <li key={a.id}>
+              <Link href={`/contas/${a.id}`} className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs transition hover:bg-white/20">
+                <span className="size-2 rounded-full" style={{ background: a.color }} />
+                <span className="text-navy-100">{a.name}</span>
+                <span className={cx("font-semibold tabular", a.saldo < 0 ? "text-rose-200" : "text-white")}>{formatMoney(a.saldo)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
 export default function Dashboard() {
   const { data, entries, today, loading } = useFinance();
   const p = usePeriod("mes");
@@ -60,7 +94,13 @@ export default function Dashboard() {
   const { from, to } = p.range;
   const periodEntries = entriesIn(entries, from, to);
   const t = totals(periodEntries);
-  const balance = sum(data.accounts.filter((a) => !a.archived).map((a) => accountBalance(a, data.transactions)));
+  const contasAtivas = data.accounts
+    .filter((a) => !a.archived)
+    .map((a) => ({ id: a.id, name: a.name, color: a.color, saldo: accountBalance(a, data.transactions) }))
+    .sort((a, b) => b.saldo - a.saldo);
+  const balance = sum(contasAtivas.map((a) => a.saldo));
+  const fimMes = monthEnd(today);
+  const previsto = data.accounts.length ? projectBalance(data, today, fimMes).end : balance;
   const commitments = pendingCommitments(data, today);
   const inPeriod = commitments.filter((c) => c.date >= from && c.date <= to);
   const toPay = sum(inPeriod.filter((c) => c.type !== "receita").map((c) => c.amount));
@@ -110,8 +150,9 @@ export default function Dashboard() {
         </Card>
       )}
 
+      {!empty && <SaldoDestaque balance={balance} accounts={contasAtivas} previsto={previsto} ate={`${formatBR(fimMes).slice(0, 5)} (fim do mês)`} />}
+
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Saldo disponível" value={balance} icon={Wallet} href="/contas" sub={`${data.accounts.filter((a) => !a.archived).length} contas`} />
         <Stat label="Receitas" value={t.receitas} icon={ArrowUpCircle} tone="green" href="/receitas" sub={<>recebido <Money value={t.recebido} /></>} />
         <Stat label="Despesas" value={t.despesas} icon={ArrowDownCircle} tone="red" href="/despesas" sub={<>pago ou no cartão <Money value={t.pago} /></>} />
         <Stat label="Saldo do período" value={t.saldo} icon={Scale} tone={t.saldo >= 0 ? "green" : "red"} sub="receitas − despesas" />
@@ -122,7 +163,9 @@ export default function Dashboard() {
         <Stat label="Total das dívidas" value={loanDebt + cardDebt} icon={Landmark} tone="red" href="/dividas" sub={<>empréstimos <Money value={loanDebt} /></>} />
         <Stat label="Limite disponível" value={sum(usages.map((u) => u.available))} icon={CreditCard} tone="violet" href="/cartoes" sub={`de ${cards.length} cartões`} />
         <Stat label="Faturas em aberto" value={sum(openInvoices.map((i) => i.remaining))} icon={CreditCard} tone="violet" href="/cartoes" sub={`${openInvoices.length} faturas`} />
-        <Stat label="Patrimônio" value={worth.at(-1)?.patrimonio ?? 0} icon={TrendingUp} href="/relatorios" sub="contas − dívidas" />
+        <div className="col-span-2 lg:col-span-1">
+          <Stat label="Patrimônio" value={worth.at(-1)?.patrimonio ?? 0} icon={TrendingUp} href="/relatorios" sub="contas − dívidas" />
+        </div>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
