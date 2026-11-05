@@ -8,6 +8,7 @@ import { statusLabel, txStatus } from "@/lib/finance/ledger";
 import { useAction, useFeedback } from "./feedback";
 import { useForms } from "./forms/provider";
 import { Badge, Dot, IconButton, Money, Segmented, cx } from "./ui";
+import { CategoryIcon } from "./category-icon";
 
 export function StatusBadge({ tx }: { tx: Transaction }) {
   const { today } = useFinance();
@@ -71,15 +72,25 @@ export function useTxActions() {
 
 function RowMenu({ items }: { items: { label: string; icon: ReactNode; onClick: () => void; danger?: boolean }[] }) {
   const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
   return (
     <div className="relative">
-      <IconButton label="Ações" onClick={() => setOpen((o) => !o)}>
+      <IconButton
+        label="Ações"
+        aria-expanded={open}
+        onClick={(e) => {
+          // perto do rodapé (barra de navegação do celular) o menu abre para cima
+          const r = e.currentTarget.getBoundingClientRect();
+          setUp(r.bottom > window.innerHeight - 260);
+          setOpen((o) => !o);
+        }}
+      >
         <MoreVertical className="size-4" />
       </IconButton>
       {open && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-20 mt-1 w-48 animate-in rounded-xl bg-white p-1 shadow-xl ring-1 ring-slate-200 dark:bg-navy-800 dark:ring-navy-700">
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div role="menu" className={cx("absolute right-0 z-50 w-48 animate-in rounded-2xl bg-white p-1 shadow-2xl ring-1 ring-slate-200 dark:bg-navy-900 dark:ring-white/10", up ? "bottom-full mb-1" : "top-full mt-1")}>
             {items.map((i) => (
               <button
                 key={i.label}
@@ -87,9 +98,10 @@ function RowMenu({ items }: { items: { label: string; icon: ReactNode; onClick: 
                   setOpen(false);
                   i.onClick();
                 }}
+                role="menuitem"
                 className={cx(
-                  "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-navy-700",
-                  i.danger && "text-rose-600",
+                  "flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-slate-50 active:scale-[0.98] dark:hover:bg-white/[0.06]",
+                  i.danger && "text-rose-600 dark:text-rose-400",
                 )}
               >
                 {i.icon}
@@ -121,13 +133,14 @@ export function TxRow({ tx, showDate = true, footer }: { tx: Transaction; showDa
   items.push({ label: "Excluir", icon: <Trash2 className="size-4" />, onClick: () => a.del(tx), danger: true });
 
   return (
-    <li className="flex items-center gap-3 py-3">
-      <div
-        className="flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
-        style={{ background: isTransfer ? "#3150a6" : isInvoice ? "#7c3aed" : cat?.color ?? "#94a3b8" }}
-      >
-        {isTransfer ? <ArrowLeftRight className="size-4" /> : isInvoice ? <CreditCard className="size-4" /> : <span className="text-sm font-semibold">{(cat?.name ?? tx.description).slice(0, 1).toUpperCase()}</span>}
-      </div>
+    <li className="-mx-2 flex items-center gap-3 rounded-2xl px-2 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.025]">
+      {isTransfer || isInvoice ? (
+        <span className={cx("flex size-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset", isTransfer ? "bg-slate-100 text-slate-700 ring-black/5 dark:bg-white/[0.06] dark:text-slate-200 dark:ring-white/10" : "bg-violet-500/10 text-violet-600 ring-violet-500/15 dark:text-violet-300")}>
+          {isTransfer ? <ArrowLeftRight className="size-[18px]" strokeWidth={2.1} /> : <CreditCard className="size-[18px]" strokeWidth={2.1} />}
+        </span>
+      ) : (
+        <CategoryIcon category={cat} kind={tx.kind === "receita" ? "receita" : "despesa"} />
+      )}
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1.5 truncate text-sm font-medium">
           {tx.description}
@@ -142,13 +155,13 @@ export function TxRow({ tx, showDate = true, footer }: { tx: Transaction; showDa
         <Money
           value={sign === 0 ? tx.amount : sign * tx.amount}
           signed={sign !== 0}
-          className={cx("text-sm font-semibold", sign > 0 && "text-emerald-600 dark:text-emerald-400", sign < 0 && "text-slate-900 dark:text-slate-100")}
+          className={cx("text-sm font-semibold", sign > 0 && "text-brand-600 dark:text-brand-400", sign < 0 && "text-slate-900 dark:text-slate-100")}
         />
         {(tx.kind === "receita" || tx.kind === "despesa") && <StatusBadge tx={tx} />}
         {footer}
       </div>
       {!tx.paid_date && (tx.kind === "receita" || tx.kind === "despesa") ? (
-        <IconButton label={tx.kind === "receita" ? "Receber" : "Pagar"} onClick={() => a.settle(tx)} className="hidden text-emerald-600 sm:inline-flex">
+        <IconButton label={tx.kind === "receita" ? "Receber" : "Pagar"} onClick={() => a.settle(tx)} className="hidden text-emerald-600 dark:text-brand-400 sm:inline-flex">
           <Check className="size-4" />
         </IconButton>
       ) : (

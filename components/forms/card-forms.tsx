@@ -111,7 +111,7 @@ export function PurchaseForm({ cardId, purchase, onClose }: { cardId?: string; p
             <CategorySelect kind="despesa" value={f.category_id} onChange={(v) => setF({ ...f, category_id: v })} />
           </Field>
           {preview && card && (
-            <div className="rounded-xl bg-navy-50 p-3 text-xs text-navy-800 sm:col-span-2 dark:bg-navy-800 dark:text-navy-100">
+            <div className="rounded-xl bg-brand-50 p-3 text-xs text-brand-900 ring-1 ring-brand-200/70 sm:col-span-2 dark:bg-brand-400/[0.07] dark:text-brand-100 dark:ring-brand-400/15">
               {preview.length === 1 ? "Entra" : `A 1ª de ${preview.length} parcelas entra`} na fatura de{" "}
               <strong>{monthLabel(monthKey(preview[0].invoice_month))}</strong>, que vence em{" "}
               <strong>{formatBR(dueDate(card, preview[0].invoice_month))}</strong>

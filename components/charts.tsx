@@ -6,15 +6,20 @@ import {
 import { formatMoney, formatMoneyCompact } from "@/lib/finance/money";
 import { Dot } from "./ui";
 
+// Cores dos gráficos vêm de variáveis CSS (globals.css): mudam sozinhas entre tema escuro e claro.
+// No escuro a cor principal é o verde-limão; no claro, o preto (o limão fica nas receitas).
 export const C = {
-  income: "#10b981",
-  expense: "#f43f5e",
-  navy: "#3150a6",
-  navyLight: "#8098d9",
-  amber: "#f59e0b",
-  grid: "#94a3b833",
-  axis: "#94a3b8",
+  income: "var(--chart-income)",
+  expense: "var(--chart-expense)",
+  navy: "var(--chart-primary)",
+  navyLight: "var(--chart-primary-soft)",
+  amber: "#f5b83d",
+  grid: "var(--chart-grid)",
+  axis: "var(--chart-axis)",
 };
+const CURSOR = { fill: "var(--chart-cursor)" };
+/** Rampa da marca para distribuição por categoria (do maior para o menor). */
+export const RAMPA = ["#b7f000", "#7fa800", "#d9f383", "#45936f", "#858b84", "#c2c6bd", "#4b524b", "#e7c84a"];
 
 const axisProps = {
   tick: { fill: C.axis, fontSize: 11 },
@@ -25,12 +30,12 @@ const axisProps = {
 function MoneyTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl bg-white px-3 py-2 text-xs shadow-lg ring-1 ring-slate-200 dark:bg-navy-800 dark:ring-navy-700">
-      {label && <p className="mb-1 font-medium text-slate-700 dark:text-slate-200">{label}</p>}
+    <div className="rounded-2xl bg-white/95 px-3.5 py-2.5 text-xs shadow-xl ring-1 ring-slate-200 backdrop-blur dark:bg-navy-950/95 dark:ring-white/10">
+      {label && <p className="mb-1.5 font-semibold text-slate-900 dark:text-white">{label}</p>}
       {payload.map((p) => (
         <p key={p.name} className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
           <Dot color={p.color} />
-          {p.name}: <span className="tabular font-medium text-slate-900 dark:text-white">{formatMoney(Number(p.value))}</span>
+          {p.name}: <span className="money font-semibold text-slate-900 dark:text-white">{formatMoney(Number(p.value))}</span>
         </p>
       ))}
     </div>
@@ -46,10 +51,10 @@ export function IncomeExpenseChart({ data }: { data: { label: string; receitas: 
         <CartesianGrid vertical={false} stroke={C.grid} />
         <XAxis dataKey="label" {...axisProps} />
         <YAxis tickFormatter={yMoney} width={84} {...axisProps} />
-        <Tooltip content={<MoneyTooltip />} cursor={{ fill: "#94a3b81a" }} />
+        <Tooltip content={<MoneyTooltip />} cursor={CURSOR} />
         <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
-        <Bar name="Receitas" dataKey="receitas" fill={C.income} radius={[6, 6, 0, 0]} maxBarSize={28} />
-        <Bar name="Despesas" dataKey="despesas" fill={C.expense} radius={[6, 6, 0, 0]} maxBarSize={28} />
+        <Bar name="Receitas" dataKey="receitas" fill={C.income} radius={[8, 8, 2, 2]} maxBarSize={28} />
+        <Bar name="Despesas" dataKey="despesas" fill={C.expense} radius={[8, 8, 2, 2]} maxBarSize={28} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -58,13 +63,14 @@ export function IncomeExpenseChart({ data }: { data: { label: string; receitas: 
 export function CategoryDonut({ data, height = 190 }: { data: { name: string; amount: number; color: string; pct: number }[]; height?: number }) {
   const top = data.slice(0, 7);
   const rest = data.slice(7).reduce((s, d) => s + d.amount, 0);
-  const rows = rest > 0 ? [...top, { name: "Outras", amount: rest, color: "#94a3b8", pct: 0 }] : top;
+  // cores da marca por posição (maior gasto = limão), para o gráfico seguir a identidade visual
+  const rows = (rest > 0 ? [...top, { name: "Outras", amount: rest, color: "", pct: 0 }] : top).map((r, i) => ({ ...r, color: RAMPA[i % RAMPA.length] }));
   const total = data.reduce((s, d) => s + d.amount, 0);
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative shrink-0" style={{ width: height, height }}>
         <PieChart width={height} height={height}>
-            <Pie data={rows} dataKey="amount" nameKey="name" innerRadius="62%" outerRadius="95%" paddingAngle={2} stroke="none">
+            <Pie data={rows} dataKey="amount" nameKey="name" innerRadius="68%" outerRadius="96%" paddingAngle={2.5} cornerRadius={6} stroke="none">
             {rows.map((r) => (
               <Cell key={r.name} fill={r.color} />
             ))}
@@ -72,8 +78,8 @@ export function CategoryDonut({ data, height = 190 }: { data: { name: string; am
             <Tooltip content={<MoneyTooltip />} />
         </PieChart>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[11px] text-slate-500">Total</span>
-          <span className="tabular text-xs font-semibold sm:text-sm">{formatMoney(total)}</span>
+          <span className="text-[11px] uppercase tracking-wider text-slate-500">Total</span>
+          <span className="money text-sm font-semibold sm:text-base">{formatMoney(total)}</span>
         </div>
       </div>
       <ul className="w-full space-y-1.5 text-sm">
@@ -81,7 +87,7 @@ export function CategoryDonut({ data, height = 190 }: { data: { name: string; am
           <li key={r.name} className="flex items-center gap-2">
             <Dot color={r.color} />
             <span className="flex-1 truncate text-slate-600 dark:text-slate-300">{r.name}</span>
-            <span className="tabular font-medium">{formatMoney(r.amount)}</span>
+            <span className="money font-semibold">{formatMoney(r.amount)}</span>
             <span className="tabular w-10 text-right text-xs text-slate-400">{total ? Math.round((r.amount / total) * 100) : 0}%</span>
           </li>
         ))}
@@ -142,7 +148,7 @@ export function AreaMoneyChart({ data, dataKey, name, color = C.navy, height = 2
       <AreaChart data={data} margin={{ left: 0, right: 8, top: 8 }}>
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.35} />
+            <stop offset="0%" stopColor={color} stopOpacity={0.3} />
             <stop offset="100%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
@@ -151,7 +157,7 @@ export function AreaMoneyChart({ data, dataKey, name, color = C.navy, height = 2
         <YAxis tickFormatter={yMoney} width={84} {...axisProps} />
         <Tooltip content={<MoneyTooltip />} />
         {zeroLine && <ReferenceLine y={0} stroke={C.expense} strokeDasharray="4 4" />}
-        <Area type="monotone" name={name} dataKey={dataKey} stroke={color} strokeWidth={2.5} fill={`url(#${id})`} />
+        <Area type="monotone" name={name} dataKey={dataKey} stroke={color} strokeWidth={2.5} fill={`url(#${id})`} activeDot={{ r: 5, strokeWidth: 0 }} />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -165,11 +171,11 @@ export function CashFlowChart({ data }: { data: { label: string; entradas: numbe
         <CartesianGrid vertical={false} stroke={C.grid} />
         <XAxis dataKey="label" {...axisProps} />
         <YAxis tickFormatter={yMoney} width={84} {...axisProps} />
-        <Tooltip content={<MoneyTooltip />} cursor={{ fill: "#94a3b81a" }} />
+        <Tooltip content={<MoneyTooltip />} cursor={CURSOR} />
         <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
         <ReferenceLine y={0} stroke={C.axis} />
-        <Bar name="Entradas" dataKey="entradas" stackId="a" fill={C.income} radius={[6, 6, 0, 0]} maxBarSize={28} />
-        <Bar name="Saídas" dataKey="saidasNeg" stackId="a" fill={C.expense} radius={[6, 6, 0, 0]} maxBarSize={28} />
+        <Bar name="Entradas" dataKey="entradas" stackId="a" fill={C.income} radius={[8, 8, 2, 2]} maxBarSize={28} />
+        <Bar name="Saídas" dataKey="saidasNeg" stackId="a" fill={C.expense} radius={[8, 8, 2, 2]} maxBarSize={28} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -182,7 +188,7 @@ export function HorizontalBars({ data }: { data: { name: string; atual: number; 
         <CartesianGrid horizontal={false} stroke={C.grid} />
         <XAxis type="number" tickFormatter={yMoney} {...axisProps} />
         <YAxis type="category" dataKey="name" width={110} {...axisProps} />
-        <Tooltip content={<MoneyTooltip />} cursor={{ fill: "#94a3b81a" }} />
+        <Tooltip content={<MoneyTooltip />} cursor={CURSOR} />
         <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
         <Bar name="Período anterior" dataKey="anterior" fill={C.navyLight} radius={[0, 6, 6, 0]} maxBarSize={14} />
         <Bar name="Período atual" dataKey="atual" fill={C.navy} radius={[0, 6, 6, 0]} maxBarSize={14} />

@@ -34,23 +34,23 @@ export function Modal({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-navy-950/50 backdrop-blur-[2px]" onClick={onClose} />
+      <div className="absolute inset-0 bg-navy-950/60 backdrop-blur-[3px]" onClick={onClose} />
       <div
         ref={ref}
         className={cx(
-          "relative flex max-h-[92dvh] w-full animate-sheet flex-col rounded-t-3xl bg-white shadow-2xl sm:rounded-2xl dark:bg-navy-900",
+          "relative flex max-h-[92dvh] w-full animate-sheet flex-col rounded-t-[2rem] bg-white shadow-2xl ring-1 ring-slate-200 sm:rounded-[1.75rem] dark:bg-navy-900 dark:ring-white/10",
           size === "lg" ? "sm:max-w-3xl" : "sm:max-w-lg",
         )}
       >
-        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4 dark:border-navy-800">
-          <h2 className="text-base font-semibold">{title}</h2>
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4 dark:border-white/[0.06]">
+          <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
           <IconButton label="Fechar" onClick={onClose}>
             <X className="size-5" />
           </IconButton>
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-2 border-t border-slate-100 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-navy-800">
+          <div className="flex justify-end gap-2 border-t border-slate-100 px-5 py-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))] dark:border-white/[0.06]">
             {footer}
           </div>
         )}
@@ -108,15 +108,15 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
           <div
             key={t.id}
             className={cx(
-              "pointer-events-auto flex max-w-md animate-in items-start gap-2 rounded-xl px-4 py-3 text-sm shadow-lg ring-1",
-              t.tone === "success" && "bg-white text-slate-800 ring-emerald-200 dark:bg-navy-800 dark:text-white dark:ring-emerald-700",
-              t.tone === "error" && "bg-white text-slate-800 ring-rose-200 dark:bg-navy-800 dark:text-white dark:ring-rose-700",
-              t.tone === "info" && "bg-white text-slate-800 ring-slate-200 dark:bg-navy-800 dark:text-white dark:ring-navy-600",
+              "pointer-events-auto flex max-w-md animate-pop items-start gap-2.5 rounded-2xl px-4 py-3 text-sm font-medium shadow-2xl ring-1 backdrop-blur",
+              t.tone === "success" && "bg-navy-950/95 text-white ring-brand-400/40 dark:bg-navy-900/95",
+              t.tone === "error" && "bg-white/95 text-slate-900 ring-rose-300 dark:bg-navy-900/95 dark:text-white dark:ring-rose-500/40",
+              t.tone === "info" && "bg-white/95 text-slate-900 ring-slate-200 dark:bg-navy-900/95 dark:text-white dark:ring-white/10",
             )}
           >
-            {t.tone === "success" && <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />}
+            {t.tone === "success" && <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand-400" />}
             {t.tone === "error" && <XCircle className="mt-0.5 size-4 shrink-0 text-rose-600" />}
-            {t.tone === "info" && <Info className="mt-0.5 size-4 shrink-0 text-navy-500" />}
+            {t.tone === "info" && <Info className="mt-0.5 size-4 shrink-0 text-brand-600 dark:text-brand-400" />}
             <span>{t.text}</span>
           </div>
         ))}

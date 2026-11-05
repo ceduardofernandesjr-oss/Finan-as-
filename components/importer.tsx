@@ -126,7 +126,7 @@ export function Importer() {
                   <td className="p-2">
                     <input
                       type="checkbox"
-                      className="size-4 accent-navy-600"
+                      className="size-4 accent-brand-500"
                       disabled={!!r.error}
                       checked={!r.error && !skip.has(r.index)}
                       onChange={(e) => {
@@ -142,7 +142,7 @@ export function Importer() {
                     {r.description || "—"} {r.error && <Badge tone="red">{r.error}</Badge>} {dupes.has(r.index) && <Badge tone="amber">já existe?</Badge>}
                   </td>
                   <td className="p-2 text-xs text-slate-500">{r.category_id ? r.categoryName : r.categoryName ? `${r.categoryName} (não encontrada)` : "—"}</td>
-                  <td className={cx("tabular whitespace-nowrap p-2 text-right", r.kind === "receita" ? "text-emerald-600" : "")}>
+                  <td className={cx("tabular whitespace-nowrap p-2 text-right", r.kind === "receita" ? "text-emerald-600 dark:text-brand-400" : "")}>
                     {r.amount ? `${r.kind === "receita" ? "+" : "−"} ${formatMoney(r.amount)}` : "—"}
                   </td>
                 </tr>

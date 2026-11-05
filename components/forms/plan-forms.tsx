@@ -127,7 +127,7 @@ export function LoanForm({ loan, onClose }: { loan?: Loan; onClose: () => void }
               label="Valor da parcela"
               error={errors.installment}
               hint={
-                <button type="button" className="text-navy-600 underline dark:text-navy-300" onClick={() => setF({ ...f, manualInstallment: !f.manualInstallment, installment: autoInstallment })}>
+                <button type="button" className="text-brand-700 underline dark:text-brand-400" onClick={() => setF({ ...f, manualInstallment: !f.manualInstallment, installment: autoInstallment })}>
                   {f.manualInstallment ? "Calcular pela taxa (Price)" : "Digitar a parcela do contrato"}
                 </button>
               }
@@ -153,7 +153,7 @@ export function LoanForm({ loan, onClose }: { loan?: Loan; onClose: () => void }
               </Field>
             )}
             {installment > 0 && f.principal > 0 && (
-              <div className="rounded-xl bg-navy-50 p-3 text-xs text-navy-800 sm:col-span-2 dark:bg-navy-800 dark:text-navy-100">
+              <div className="rounded-xl bg-brand-50 p-3 text-xs text-brand-900 ring-1 ring-brand-200/70 sm:col-span-2 dark:bg-brand-400/[0.07] dark:text-brand-100 dark:ring-brand-400/15">
                 Total a pagar: <strong>{formatMoney(installment * f.count)}</strong> · juros:{" "}
                 <strong>{formatMoney(Math.max(0, installment * f.count - f.principal))}</strong> · quitação prevista:{" "}
                 <strong>{formatBR(addMonths(f.first_due_date, Math.max(0, f.count - 1)))}</strong>. As parcelas viram contas a pagar.
@@ -270,7 +270,7 @@ export function GoalForm({ goal, kind, onClose }: { goal?: Goal; kind?: GoalKind
           error={errors.target}
           hint={
             f.kind === "reserva" && suggestion > 0 ? (
-              <button type="button" className="text-navy-600 underline dark:text-navy-300" onClick={() => setF({ ...f, target: suggestion })}>
+              <button type="button" className="text-brand-700 underline dark:text-brand-400" onClick={() => setF({ ...f, target: suggestion })}>
                 Usar 6 meses das suas despesas: {formatMoney(suggestion)}
               </button>
             ) : undefined

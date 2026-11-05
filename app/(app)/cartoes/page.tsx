@@ -50,7 +50,7 @@ export default function CardsPage() {
             const pendingClosed = invs.filter((x) => x.month < current && x.remaining > 0);
             return (
               <Link key={c.id} href={`/cartoes/${c.id}`}>
-                <Card className="h-full transition hover:ring-navy-300 dark:hover:ring-navy-600">
+                <Card className="h-full transition duration-200 hover:-translate-y-0.5 hover:ring-slate-300 hover:shadow-lg dark:hover:ring-brand-400/30">
                   <CardVisual {...c} />
                   <div className="mt-4 space-y-3">
                     <div>

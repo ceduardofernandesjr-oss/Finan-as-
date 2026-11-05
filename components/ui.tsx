@@ -9,13 +9,15 @@ export function cx(...c: (string | false | null | undefined | 0)[]): string {
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "success";
 
+// primária = verde-limão com texto preto (assinatura da marca); demais neutras
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-navy-700 text-white hover:bg-navy-800 dark:bg-navy-500 dark:hover:bg-navy-400",
+  primary:
+    "bg-brand-400 font-semibold text-navy-950 shadow-[var(--shadow-glow)] hover:bg-brand-300 hover:shadow-[0_12px_34px_-10px_rgb(183_240_0/0.7)]",
   secondary:
-    "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-navy-900 dark:text-slate-200 dark:ring-navy-700 dark:hover:bg-navy-800",
-  ghost: "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-navy-800",
-  danger: "bg-rose-600 text-white hover:bg-rose-700",
-  success: "bg-emerald-600 text-white hover:bg-emerald-700",
+    "bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300 dark:bg-white/[0.04] dark:text-slate-100 dark:ring-white/10 dark:hover:bg-white/[0.08] dark:hover:ring-white/20",
+  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white",
+  danger: "bg-rose-500 font-semibold text-white hover:bg-rose-600",
+  success: "bg-brand-400 font-semibold text-navy-950 hover:bg-brand-300",
 };
 
 export const Button = forwardRef<
@@ -27,9 +29,9 @@ export const Button = forwardRef<
       ref={ref}
       disabled={disabled || loading}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-500",
-        size === "sm" ? "h-9 px-3 text-sm" : "h-11 px-4 text-sm",
+        "inline-flex select-none items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400",
+        size === "sm" ? "h-9 px-3.5 text-sm" : "h-11 px-5 text-sm",
         VARIANTS[variant],
         className,
       )}
@@ -52,8 +54,8 @@ export function IconButton({
       aria-label={label}
       title={label}
       className={cx(
-        "inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-navy-800 dark:hover:text-white",
-        "focus-visible:outline-2 focus-visible:outline-navy-500",
+        "inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-white/[0.06] dark:hover:text-white",
+        "focus-visible:outline-2 focus-visible:outline-brand-400",
         className,
       )}
       {...rest}
@@ -67,7 +69,7 @@ export function Card({ className, children, ...rest }: { className?: string; chi
   return (
     <div
       className={cx(
-        "rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:ring-navy-800",
+        "rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/80 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-white/[0.06]",
         className,
       )}
       {...rest}
@@ -79,9 +81,9 @@ export function Card({ className, children, ...rest }: { className?: string; chi
 
 export function CardTitle({ children, action, sub }: { children: ReactNode; action?: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="mb-3 flex items-start justify-between gap-2">
+    <div className="mb-4 flex items-start justify-between gap-2">
       <div>
-        <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{children}</h2>
+        <h2 className="text-[15px] font-semibold tracking-tight text-slate-900 dark:text-white">{children}</h2>
         {sub && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
       </div>
       {action}
@@ -104,7 +106,7 @@ export function Field({
 }) {
   return (
     <label className={cx("block", className)}>
-      <span className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-slate-300">{label}</span>
+      <span className="mb-1.5 block text-xs font-medium tracking-wide text-slate-600 dark:text-slate-400">{label}</span>
       {children}
       {error ? (
         <span className="mt-1 block text-xs text-rose-600" role="alert">
@@ -118,7 +120,7 @@ export function Field({
 }
 
 const inputBase =
-  "w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20 disabled:opacity-60 dark:border-navy-700 dark:bg-navy-950 dark:text-slate-100";
+  "w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-400/20 disabled:opacity-60 dark:border-white/10 dark:bg-navy-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-white/20 dark:focus:border-brand-400 dark:[color-scheme:dark]";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...rest },
@@ -168,7 +170,7 @@ export function MoneyInput({
       inputMode="numeric"
       autoFocus={autoFocus}
       placeholder="R$ 0,00"
-      className={cx(inputBase, "h-11 tabular text-base font-semibold", className)}
+      className={cx(inputBase, "money h-11 text-base font-semibold", className)}
       value={text}
       onChange={(e) => {
         const digits = e.target.value.replace(/\D/g, "").slice(0, 13);
@@ -182,31 +184,31 @@ export function MoneyInput({
 
 export function Badge({ tone = "slate", children }: { tone?: "slate" | "green" | "red" | "amber" | "blue" | "violet"; children: ReactNode }) {
   const tones = {
-    slate: "bg-slate-100 text-slate-700 dark:bg-navy-800 dark:text-slate-300",
-    green: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-    red: "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
-    amber: "bg-amber-50 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
-    blue: "bg-navy-50 text-navy-700 dark:bg-navy-500/20 dark:text-navy-200",
-    violet: "bg-violet-50 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",
+    slate: "bg-slate-100 text-slate-700 dark:bg-white/[0.06] dark:text-slate-300",
+    green: "bg-brand-50 text-brand-700 ring-1 ring-brand-200/60 dark:bg-brand-400/10 dark:text-brand-300 dark:ring-brand-400/20",
+    red: "bg-rose-50 text-rose-700 ring-1 ring-rose-200/60 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/20",
+    amber: "bg-amber-50 text-amber-800 ring-1 ring-amber-200/60 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20",
+    blue: "bg-slate-100 text-slate-800 dark:bg-white/[0.08] dark:text-slate-200",
+    violet: "bg-violet-50 text-violet-700 ring-1 ring-violet-200/60 dark:bg-violet-400/10 dark:text-violet-300 dark:ring-violet-400/20",
   };
   return <span className={cx("inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium", tones[tone])}>{children}</span>;
 }
 
 export function Progress({ value, tone }: { value: number; tone?: "green" | "amber" | "red" | "navy" }) {
   const t = tone ?? (value > 100 ? "red" : value >= 80 ? "amber" : "green");
-  const colors = { green: "bg-emerald-500", amber: "bg-amber-500", red: "bg-rose-500", navy: "bg-navy-500" };
+  const colors = { green: "bg-brand-500 dark:bg-brand-400", amber: "bg-amber-400", red: "bg-rose-500", navy: "bg-slate-800 dark:bg-slate-300" };
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-navy-800" role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cx("h-full rounded-full transition-all", colors[t])} style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/[0.06]" role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>
+      <div className={cx("h-full rounded-full transition-[width] duration-700 ease-out", colors[t])} style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
     </div>
   );
 }
 
 export function EmptyState({ icon, title, text, action }: { icon?: ReactNode; title: string; text?: ReactNode; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center px-4 py-10 text-center">
-      {icon && <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-navy-50 text-navy-600 dark:bg-navy-800 dark:text-navy-200">{icon}</div>}
-      <p className="font-medium text-slate-800 dark:text-slate-100">{title}</p>
+    <div className="flex animate-in flex-col items-center px-4 py-10 text-center">
+      {icon && <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-200/70 dark:bg-brand-400/10 dark:text-brand-400 dark:ring-brand-400/20">{icon}</div>}
+      <p className="font-semibold text-slate-900 dark:text-white">{title}</p>
       {text && <p className="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">{text}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
@@ -214,7 +216,7 @@ export function EmptyState({ icon, title, text, action }: { icon?: ReactNode; ti
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cx("animate-pulse rounded-xl bg-slate-200/70 dark:bg-navy-800", className)} />;
+  return <div className={cx("animate-pulse rounded-2xl bg-slate-200/70 dark:bg-white/[0.05]", className)} />;
 }
 
 export function Segmented<T extends string>({
@@ -229,7 +231,7 @@ export function Segmented<T extends string>({
   className?: string;
 }) {
   return (
-    <div role="tablist" className={cx("inline-flex rounded-xl bg-slate-100 p-1 dark:bg-navy-900", className)}>
+    <div role="tablist" className={cx("inline-flex max-w-full overflow-x-auto rounded-xl bg-slate-100 p-1 [scrollbar-width:none] ring-1 ring-slate-200/70 dark:bg-white/[0.04] dark:ring-white/[0.06]", className)}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -238,10 +240,10 @@ export function Segmented<T extends string>({
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
           className={cx(
-            "rounded-lg px-3 py-1.5 text-xs font-medium transition sm:text-sm",
+            "shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:text-sm",
             value === o.value
-              ? "bg-white text-navy-800 shadow-sm dark:bg-navy-700 dark:text-white"
-              : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white",
+              ? "bg-navy-950 text-brand-400 shadow-sm dark:bg-brand-400 dark:text-navy-950"
+              : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white",
           )}
         >
           {o.label}
@@ -253,16 +255,16 @@ export function Segmented<T extends string>({
 
 export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: ReactNode }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-navy-950">
+    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-200/60 dark:bg-white/[0.03] dark:ring-white/[0.06]">
       <span className="text-sm text-slate-700 dark:text-slate-200">{label}</span>
       <button
         type="button"
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={cx("relative h-6 w-11 shrink-0 rounded-full transition", checked ? "bg-navy-600" : "bg-slate-300 dark:bg-navy-700")}
+        className={cx("relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400", checked ? "bg-brand-400" : "bg-slate-300 dark:bg-white/15")}
       >
-        <span className={cx("absolute top-0.5 size-5 rounded-full bg-white shadow transition-all", checked ? "left-[22px]" : "left-0.5")} />
+        <span className={cx("absolute top-0.5 size-5 rounded-full shadow transition-all duration-200", checked ? "left-[22px] bg-navy-950" : "left-0.5 bg-white")} />
       </button>
     </label>
   );
@@ -273,8 +275,8 @@ export function Money({ value, className, signed, colored }: { value: number; cl
   return (
     <span
       className={cx(
-        "tabular whitespace-nowrap",
-        colored && value > 0 && "text-emerald-600 dark:text-emerald-400",
+        "money whitespace-nowrap",
+        colored && value > 0 && "text-brand-600 dark:text-brand-400",
         colored && value < 0 && "text-rose-600 dark:text-rose-400",
         className,
       )}
@@ -288,9 +290,10 @@ export function Dot({ color }: { color: string }) {
   return <span className="inline-block size-2.5 shrink-0 rounded-full" style={{ background: color }} />;
 }
 
+// cores para contas, cartões e categorias: harmonizadas com o preto e o limão (as já escolhidas continuam valendo)
 export const COLORS = [
-  "#1e3a8a", "#2563eb", "#0891b2", "#059669", "#16a34a", "#ca8a04",
-  "#ea580c", "#dc2626", "#db2777", "#9333ea", "#7c3aed", "#475569",
+  "#b7f000", "#7fa800", "#45936f", "#2fb5a3", "#3b9edb", "#6d7cf2",
+  "#a77bf3", "#e86fb4", "#f4405c", "#f59e3b", "#e7c84a", "#858b84",
 ];
 
 export function ColorPicker({ value, onChange }: { value: string; onChange: (c: string) => void }) {
@@ -302,7 +305,7 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (c: 
           type="button"
           aria-label={`Cor ${c}`}
           onClick={() => onChange(c)}
-          className={cx("size-8 rounded-full ring-offset-2 transition dark:ring-offset-navy-900", value === c && "ring-2 ring-navy-500")}
+          className={cx("size-8 rounded-full ring-offset-2 transition hover:scale-110 dark:ring-offset-navy-900", value === c && "ring-2 ring-navy-950 dark:ring-brand-400")}
           style={{ background: c }}
         />
       ))}
@@ -311,5 +314,5 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (c: 
 }
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cx("size-5 animate-spin text-navy-500", className)} />;
+  return <Loader2 className={cx("size-5 animate-spin text-brand-500 dark:text-brand-400", className)} />;
 }

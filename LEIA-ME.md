@@ -80,3 +80,22 @@ npm test                     # testes das regras financeiras
 - `supabase/test/`: testes de segurança e regras do banco (Postgres local).
 - `lib/finance/`: regras de negócio puras (cartões, saldos, empréstimos, relatórios, projeções, análises), testadas em `tests/`.
 - `lib/store.tsx`: carrega os dados do usuário e faz as operações. `components/forms/`: formulários com validação (zod).
+
+## Identidade visual (design system)
+
+Visual de fintech: base preta (cerca de 80% da tela) e verde-limão como assinatura (cerca de 20%: ações principais, itens selecionados, valores positivos e gráficos). O tema escuro é o padrão. O claro e o automático continuam em Configurações › Aparência.
+
+| Papel | Cor |
+|---|---|
+| Verde-limão (marca, ações, positivo) | `#B7F000` |
+| Preto profundo (fundo) | `#080A08` |
+| Preto secundário (cartões) | `#111411` |
+| Cinza escuro (bordas, realces) | `#1B201B` |
+| Cinza médio (texto secundário) | `#858B84` |
+| Branco suave (fundo no tema claro) | `#F5F7F2` |
+
+- **Tokens** em `app/globals.css` (`@theme`): escalas `brand` (limão), `navy` (grafite das superfícies), `slate` (cinzas de texto), `emerald` (positivo = limão), `rose` (negativo), `violet` (cartões de crédito, menta discreta), raios, sombras e animações. Os gráficos usam variáveis `--chart-*`, que mudam com o tema.
+- **Componentes** em `components/ui.tsx`: botões (primário limão com texto preto, secundário, fantasma, perigo), cartões arredondados com sombra suave, campos com foco em limão, seletores segmentados, interruptores, selos, barras de progresso, estados vazios e de carregamento.
+- **Ícones**: só Lucide, traço de 1,9 a 2,2. Cada categoria tem ícone próprio (`components/category-icon.tsx`) no estilo duotone, com a cor da categoria.
+- **Navegação**: menu lateral agrupado por contexto (Visão geral, Movimentações, Contas e cartões, Planejamento, Análises). No celular há a barra inferior com o botão de ação rápida e uma folha "Mais" com os mesmos grupos.
+- **Responsivo**: sem rolagem lateral de 360 px até telas largas. Os itens de grade podem encolher (`.grid > * { min-width: 0 }`) e os menus perto do rodapé abrem para cima.

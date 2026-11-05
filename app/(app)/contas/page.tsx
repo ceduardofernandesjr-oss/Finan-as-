@@ -60,7 +60,7 @@ export default function AccountsPage() {
               const txs = data.transactions.filter((t) => t.paid_date && (t.account_id === a.id || t.to_account_id === a.id));
               return (
                 <Link key={a.id} href={`/contas/${a.id}`}>
-                  <Card className="h-full transition hover:ring-navy-300 dark:hover:ring-navy-600">
+                  <Card className="h-full transition duration-200 hover:-translate-y-0.5 hover:ring-slate-300 hover:shadow-lg dark:hover:ring-brand-400/30">
                     <div className="flex items-center gap-3">
                       <span className="flex size-10 items-center justify-center rounded-xl text-white" style={{ background: a.color }}>
                         <Wallet className="size-5" />

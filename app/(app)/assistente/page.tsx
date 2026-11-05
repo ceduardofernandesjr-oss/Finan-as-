@@ -159,7 +159,7 @@ export default function AssistantPage() {
               {msgs.map((m) =>
                 m.de === "voce" ? (
                   <div key={m.id} className="flex justify-end">
-                    <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-navy-700 px-4 py-2.5 text-sm text-white dark:bg-navy-500">{m.texto}</p>
+                    <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-navy-950 px-4 py-2.5 text-sm text-white dark:bg-brand-400 dark:font-medium dark:text-navy-950">{m.texto}</p>
                   </div>
                 ) : (
                   <Resposta
@@ -189,7 +189,7 @@ export default function AssistantPage() {
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); } }}
                 placeholder='Ex.: "gastei 45 no mercado ontem"'
                 aria-label="Mensagem para o assistente"
-                className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-navy-400 focus:ring-2 focus:ring-navy-100 dark:border-navy-700 dark:bg-navy-950 dark:focus:ring-navy-800"
+                className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-400/20 dark:border-navy-700 dark:bg-navy-950 dark:border-white/10 dark:focus:border-brand-400"
               />
               <Button type="submit" aria-label="Enviar" disabled={!texto.trim()} icon={<Send className="size-4" />} className="h-11 w-11 shrink-0 px-0" />
             </form>
@@ -200,7 +200,7 @@ export default function AssistantPage() {
             <p className="text-sm font-semibold">Atalhos</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {["dicas", "quanto gastei este mês?", "saldo", "quanto gastei mês passado?", "posso gastar 100?", "ajuda"].map((t) => (
-                <button key={t} type="button" onClick={() => enviar(t)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-navy-700">{t}</button>
+                <button key={t} type="button" onClick={() => enviar(t)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-white/[0.06]">{t}</button>
               ))}
             </div>
           </Card>
@@ -228,7 +228,7 @@ export default function AssistantPage() {
 function Boas({ vindas }: { vindas: (t: string) => void }) {
   return (
     <div className="py-6 text-center">
-      <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-navy-50 text-navy-600 dark:bg-navy-800 dark:text-navy-200"><Bot className="size-6" /></div>
+      <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-brand-400/15 text-brand-700 ring-1 ring-brand-400/20 dark:bg-brand-400/10 dark:text-brand-400"><Bot className="size-6" /></div>
       <p className="font-semibold">Olá! Me conte seus gastos e ganhos.</p>
       <p className="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">Escreva do seu jeito, um por linha ou vários na mesma frase. Toque num exemplo para experimentar:</p>
       <Exemplos onExemplo={vindas} />
@@ -240,7 +240,7 @@ function Exemplos({ onExemplo }: { onExemplo: (t: string) => void }) {
   return (
     <div className="mt-4 flex flex-wrap justify-center gap-2">
       {EXEMPLOS.map((e) => (
-        <button key={e} type="button" onClick={() => onExemplo(e)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-navy-700">{e}</button>
+        <button key={e} type="button" onClick={() => onExemplo(e)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-white/[0.06]">{e}</button>
       ))}
     </div>
   );
@@ -249,8 +249,8 @@ function Exemplos({ onExemplo }: { onExemplo: (t: string) => void }) {
 function Balao({ children, icone }: { children: React.ReactNode; icone?: React.ReactNode }) {
   return (
     <div className="flex gap-2.5">
-      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-navy-50 text-navy-600 dark:bg-navy-800 dark:text-navy-200">{icone ?? <Bot className="size-4" />}</span>
-      <div className="min-w-0 max-w-[92%] flex-1 rounded-2xl rounded-tl-md bg-slate-50 px-4 py-3 text-sm dark:bg-navy-800/60">{children}</div>
+      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-400/15 text-brand-700 ring-1 ring-brand-400/20 dark:bg-brand-400/10 dark:text-brand-400">{icone ?? <Bot className="size-4" />}</span>
+      <div className="min-w-0 max-w-[92%] flex-1 rounded-2xl rounded-tl-md bg-slate-100/80 px-4 py-3 text-sm dark:bg-white/[0.04] dark:ring-1 dark:ring-white/[0.06]">{children}</div>
     </div>
   );
 }
@@ -273,7 +273,7 @@ function Resposta({
     return (
       <Balao>
         {st === "rascunho" && <p className="mb-2 text-slate-600 dark:text-slate-300">{r.items.length > 1 ? `Entendi ${r.items.length} lançamentos. Confira e salve:` : "Entendi assim. Confira e salve:"}</p>}
-        {st === "salvo" && <p className="mb-2 flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-400"><CheckCircle2 className="size-4" />{r.items.length > 1 ? "Salvos." : "Salvo."}</p>}
+        {st === "salvo" && <p className="mb-2 flex items-center gap-1.5 font-medium text-brand-700 dark:text-brand-400"><CheckCircle2 className="size-4" />{r.items.length > 1 ? "Salvos." : "Salvo."}</p>}
         {st === "descartado" && <p className="mb-2 text-slate-500">Descartado.</p>}
         {st === "desfeito" && <p className="mb-2 text-slate-500">Desfeito: nada foi gravado.</p>}
         <div className="space-y-2">
@@ -295,7 +295,7 @@ function Resposta({
     );
   }
   if (r.type === "posso_gastar" && msg.posso) {
-    const a = msg.posso, tone = a.verdict === "sim" ? "text-emerald-700 dark:text-emerald-400" : a.verdict === "cuidado" ? "text-amber-700 dark:text-amber-400" : "text-rose-700 dark:text-rose-400";
+    const a = msg.posso, tone = a.verdict === "sim" ? "text-brand-700 dark:text-brand-400" : a.verdict === "cuidado" ? "text-amber-700 dark:text-amber-400" : "text-rose-700 dark:text-rose-400";
     return (
       <Balao icone={<Wallet className="size-4" />}>
         <p className={cx("font-semibold", tone)}>{a.title}</p>
@@ -347,7 +347,7 @@ function Rascunho({ item, hoje, editavel, onChange, onRemover }: { item: DraftEn
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className={cx("font-semibold tabular", isReceita ? "text-emerald-600" : "text-rose-600")}>{isReceita ? "+" : "−"} {formatMoney(item.amount)}</span>
+            <span className={cx("font-semibold tabular", isReceita ? "text-emerald-600 dark:text-brand-400" : "text-rose-600")}>{isReceita ? "+" : "−"} {formatMoney(item.amount)}</span>
             <span className="font-medium">{item.description}</span>
           </p>
           <p className="mt-1 flex flex-wrap gap-1.5 text-xs">

@@ -36,9 +36,9 @@ export function LoginForm() {
   };
   return (
     <form onSubmit={submit} className="space-y-4">
-      <h1 className="text-lg font-semibold">Entrar</h1>
-      {params.get("confirmado") && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">E-mail confirmado. Agora é só entrar.</p>}
-      {params.get("senha") && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Senha alterada. Entre com a nova senha.</p>}
+      <h1 className="text-xl font-semibold tracking-tight">Entrar</h1>
+      {params.get("confirmado") && <p className="rounded-xl bg-brand-50 p-3 text-sm text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">E-mail confirmado. Agora é só entrar.</p>}
+      {params.get("senha") && <p className="rounded-xl bg-brand-50 p-3 text-sm text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">Senha alterada. Entre com a nova senha.</p>}
       <Field label="E-mail">
         <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </Field>
@@ -48,8 +48,8 @@ export function LoginForm() {
       {error && <p className="text-sm text-rose-600" role="alert">{error}</p>}
       <Button type="submit" className="w-full" loading={busy}>Entrar</Button>
       <div className="flex justify-between text-sm">
-        <Link href="/recuperar-senha" className="text-navy-600 hover:underline dark:text-navy-300">Esqueci a senha</Link>
-        <Link href="/cadastro" className="font-medium text-navy-600 hover:underline dark:text-navy-300">Criar conta</Link>
+        <Link href="/recuperar-senha" className="text-brand-700 hover:underline dark:text-brand-400">Esqueci a senha</Link>
+        <Link href="/cadastro" className="font-medium text-brand-700 hover:underline dark:text-brand-400">Criar conta</Link>
       </div>
     </form>
   );
@@ -84,14 +84,14 @@ export function SignupForm() {
   if (done)
     return (
       <div className="space-y-3 text-sm">
-        <h1 className="text-lg font-semibold">Confirme seu e-mail</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Confirme seu e-mail</h1>
         <p className="text-slate-600 dark:text-slate-300">Enviamos um link para <strong>{email}</strong>. Abra o e-mail e clique no link para ativar a conta.</p>
-        <Link href="/entrar" className="font-medium text-navy-600">Voltar para entrar</Link>
+        <Link href="/entrar" className="font-medium text-brand-700 dark:text-brand-400">Voltar para entrar</Link>
       </div>
     );
   return (
     <form onSubmit={submit} className="space-y-4">
-      <h1 className="text-lg font-semibold">Criar conta</h1>
+      <h1 className="text-xl font-semibold tracking-tight">Criar conta</h1>
       <Field label="E-mail">
         <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </Field>
@@ -104,7 +104,7 @@ export function SignupForm() {
       {error && <p className="text-sm text-rose-600" role="alert">{error}</p>}
       <Button type="submit" className="w-full" loading={busy}>Criar conta</Button>
       <p className="text-center text-sm">
-        Já tem conta? <Link href="/entrar" className="font-medium text-navy-600 hover:underline dark:text-navy-300">Entrar</Link>
+        Já tem conta? <Link href="/entrar" className="font-medium text-brand-700 hover:underline dark:text-brand-400">Entrar</Link>
       </p>
     </form>
   );
@@ -127,19 +127,19 @@ export function ForgotForm() {
   };
   return sent ? (
     <div className="space-y-3 text-sm">
-      <h1 className="text-lg font-semibold">Verifique seu e-mail</h1>
+      <h1 className="text-xl font-semibold tracking-tight">Verifique seu e-mail</h1>
       <p className="text-slate-600 dark:text-slate-300">Se existir uma conta com {email}, você vai receber um link para criar uma nova senha.</p>
-      <Link href="/entrar" className="font-medium text-navy-600">Voltar para entrar</Link>
+      <Link href="/entrar" className="font-medium text-brand-700 dark:text-brand-400">Voltar para entrar</Link>
     </div>
   ) : (
     <form onSubmit={submit} className="space-y-4">
-      <h1 className="text-lg font-semibold">Recuperar senha</h1>
+      <h1 className="text-xl font-semibold tracking-tight">Recuperar senha</h1>
       <Field label="E-mail">
         <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </Field>
       {error && <p className="text-sm text-rose-600">{error}</p>}
       <Button type="submit" className="w-full" loading={busy}>Enviar link</Button>
-      <Link href="/entrar" className="block text-center text-sm text-navy-600">Voltar</Link>
+      <Link href="/entrar" className="block text-center text-sm text-brand-700 dark:text-brand-400">Voltar</Link>
     </form>
   );
 }
@@ -161,7 +161,7 @@ export function ResetForm() {
   };
   return (
     <form onSubmit={submit} className="space-y-4">
-      <h1 className="text-lg font-semibold">Nova senha</h1>
+      <h1 className="text-xl font-semibold tracking-tight">Nova senha</h1>
       <Field label="Nova senha" hint="Pelo menos 8 caracteres">
         <Input type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
       </Field>

@@ -31,7 +31,7 @@ export default function CardDetail() {
   const [q, setQ] = useState("");
 
   if (loading) return <Skeleton className="h-96" />;
-  if (!card) return <EmptyState title="Cartão não encontrado" action={<Link href="/cartoes" className="text-navy-600">Voltar</Link>} />;
+  if (!card) return <EmptyState title="Cartão não encontrado" action={<Link href="/cartoes" className="font-medium text-brand-700 dark:text-brand-400">Voltar</Link>} />;
 
   const usage = cardUsage(card, data.installments, data.transactions);
   const selMonth = sel ?? (invoices.find((i) => i.month === current)?.month ?? invoices.at(-1)?.month ?? current);
@@ -92,7 +92,7 @@ export default function CardDetail() {
           <Card>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div><p className="text-xs text-slate-500">Limite total</p><Money value={usage.limit} className="font-semibold" /></div>
-              <div><p className="text-xs text-slate-500">Disponível</p><Money value={usage.available} className="font-semibold text-emerald-600" /></div>
+              <div><p className="text-xs text-slate-500">Disponível</p><Money value={usage.available} className="font-semibold text-emerald-600 dark:text-brand-400" /></div>
               <div className="col-span-2">
                 <div className="mb-1 flex justify-between text-xs text-slate-500">
                   <span>Comprometido (inclui parcelas futuras)</span>
@@ -137,7 +137,7 @@ export default function CardDetail() {
                     <>
                       <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3 text-sm sm:grid-cols-4 dark:bg-navy-950">
                         <div><p className="text-xs text-slate-500">Total</p><Money value={inv.total} className="font-semibold" /></div>
-                        <div><p className="text-xs text-slate-500">Pago</p><Money value={inv.paid} className="font-semibold text-emerald-600" /></div>
+                        <div><p className="text-xs text-slate-500">Pago</p><Money value={inv.paid} className="font-semibold text-emerald-600 dark:text-brand-400" /></div>
                         <div><p className="text-xs text-slate-500">Fecha em</p><p className="font-semibold">{formatBR(inv.closing)}</p></div>
                         <div><p className="text-xs text-slate-500">Vence em</p><p className="font-semibold">{formatBR(inv.due)}</p></div>
                       </div>

@@ -14,17 +14,17 @@ import { useAction, useFeedback } from "@/components/feedback";
 import { Importer } from "@/components/importer";
 
 function ThemeChooser() {
-  const [mode, setMode] = useState<"claro" | "escuro" | "auto">("auto");
+  // sem escolha salva, o padrão é o escuro (identidade visual); "auto" segue o aparelho
+  const [mode, setMode] = useState<"claro" | "escuro" | "auto">("escuro");
   useEffect(() => {
     try {
-      setMode((localStorage.getItem("tema") as "claro" | "escuro") ?? "auto");
+      setMode((localStorage.getItem("tema") as "claro" | "escuro" | "auto" | null) ?? "escuro");
     } catch {}
   }, []);
   const apply = (m: typeof mode) => {
     setMode(m);
     try {
-      if (m === "auto") localStorage.removeItem("tema");
-      else localStorage.setItem("tema", m);
+      localStorage.setItem("tema", m);
     } catch {}
     const dark = m === "escuro" || (m === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.classList.toggle("dark", dark);

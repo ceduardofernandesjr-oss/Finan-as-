@@ -25,7 +25,7 @@ function Row({ label, value, strong, tone }: { label: string; value: React.React
   return (
     <div className={cx("flex justify-between py-1.5 text-sm", strong && "font-semibold")}>
       <span className="text-slate-600 dark:text-slate-300">{label}</span>
-      <span className={cx("tabular", tone === "green" && "text-emerald-600", tone === "red" && "text-rose-600")}>{value}</span>
+      <span className={cx("tabular", tone === "green" && "text-emerald-600 dark:text-brand-400", tone === "red" && "text-rose-600")}>{value}</span>
     </div>
   );
 }
@@ -104,7 +104,7 @@ function InstallmentSim() {
           <Row label="Parcela" value={formatMoney(r.parcela)} />
           <Row label="Desconto à vista" value={`${formatMoney(total - cash)} (${formatPct(((total - cash) / total) * 100, 1)})`} />
           <Row label="Valor presente das parcelas" value={formatMoney(r.presentValue)} />
-          <p className={cx("mt-3 text-sm font-semibold", r.best === "avista" ? "text-emerald-700 dark:text-emerald-400" : "text-navy-700 dark:text-navy-200")}>
+          <p className={cx("mt-3 text-sm font-semibold", r.best === "avista" ? "text-brand-700 dark:text-brand-400" : "text-slate-900 dark:text-white")}>
             {r.best === "avista"
               ? `Compensa pagar à vista: você economiza ${formatMoney(r.difference)} em valor de hoje.`
               : `Compensa parcelar e deixar o dinheiro rendendo: vantagem de ${formatMoney(r.difference)} em valor de hoje.`}
@@ -182,7 +182,7 @@ function ImpactSim() {
           <Row label="Sobra média hoje" value={<Money value={avg} colored />} />
           <Row label="Sobra com a nova despesa" value={<Money value={avg - amount} colored />} strong />
           <Row label={`Custo total em ${months} meses`} value={formatMoney(amount * months)} />
-          <p className={cx("mt-2 text-sm", avg - amount < 0 ? "text-rose-600" : "text-emerald-700 dark:text-emerald-400")}>
+          <p className={cx("mt-2 text-sm", avg - amount < 0 ? "text-rose-600" : "text-brand-700 dark:text-brand-400")}>
             {avg - amount < 0
               ? `Essa despesa faria faltar ${formatMoney(amount - avg)} por mês. Seria preciso cortar outros gastos ou aumentar a renda.`
               : `Cabe no orçamento: ainda sobrariam ${formatMoney(avg - amount)} por mês${avg > 0 ? ` (${formatPct(((avg - amount) / avg) * 100)} da sobra atual)` : ""}.`}

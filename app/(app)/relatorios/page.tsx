@@ -109,7 +109,7 @@ export default function ReportsPage() {
           <Card>
             <CardTitle>Resultado do período</CardTitle>
             <dl className="space-y-2 text-sm">
-              <div className="flex justify-between"><dt>Receitas</dt><dd><Money value={t.receitas} className="font-semibold text-emerald-600" /></dd></div>
+              <div className="flex justify-between"><dt>Receitas</dt><dd><Money value={t.receitas} className="font-semibold text-emerald-600 dark:text-brand-400" /></dd></div>
               <div className="flex justify-between"><dt>Despesas</dt><dd><Money value={t.despesas} className="font-semibold text-rose-600" /></dd></div>
               <div className="flex justify-between border-t border-slate-100 pt-2 dark:border-navy-800"><dt>Saldo</dt><dd><Money value={t.saldo} colored className="font-semibold" /></dd></div>
               <div className="flex justify-between text-slate-500"><dt>Taxa de economia</dt><dd>{t.receitas ? formatPct(pct(t.saldo, t.receitas), 1) : "—"}</dd></div>

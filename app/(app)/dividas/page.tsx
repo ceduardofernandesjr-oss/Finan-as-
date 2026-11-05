@@ -115,7 +115,7 @@ export default function DebtsPage() {
                   Já pago: <Money value={s.paidAmount} /> · juros totais do contrato: <Money value={s.totalInterest} />
                 </p>
               </div>
-              <button className="mt-3 flex items-center gap-1 text-sm font-medium text-navy-600 dark:text-navy-300" onClick={() => setOpen(open === s.loan.id ? null : s.loan.id)}>
+              <button className="mt-3 flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline dark:text-brand-400" onClick={() => setOpen(open === s.loan.id ? null : s.loan.id)}>
                 <ChevronDown className={cx("size-4 transition", open === s.loan.id && "rotate-180")} />
                 {open === s.loan.id ? "Ocultar parcelas" : "Ver parcelas"}
               </button>

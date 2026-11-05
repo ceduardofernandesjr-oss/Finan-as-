@@ -26,7 +26,7 @@ export default function AccountDetail() {
 
   if (loading) return <Skeleton className="h-96" />;
   const account = data.accounts.find((a) => a.id === id);
-  if (!account) return <EmptyState title="Conta não encontrada" action={<Link href="/contas" className="text-navy-600">Voltar</Link>} />;
+  if (!account) return <EmptyState title="Conta não encontrada" action={<Link href="/contas" className="font-medium text-brand-700 dark:text-brand-400">Voltar</Link>} />;
 
   const statement = accountStatement(account, data.transactions).filter((r) => r.tx.paid_date! >= p.range.from && r.tx.paid_date! <= p.range.to);
   const shown = statement.filter((r) =>
@@ -74,7 +74,7 @@ export default function AccountDetail() {
       />
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Card className="p-4 sm:p-4"><p className="text-xs text-slate-500">Saldo atual</p><Money value={balance} colored={balance < 0} className="text-lg font-semibold" /></Card>
-        <Card className="p-4 sm:p-4"><p className="text-xs text-slate-500">Entradas no período</p><Money value={inflow} className="text-lg font-semibold text-emerald-600" /></Card>
+        <Card className="p-4 sm:p-4"><p className="text-xs text-slate-500">Entradas no período</p><Money value={inflow} className="text-lg font-semibold text-emerald-600 dark:text-brand-400" /></Card>
         <Card className="p-4 sm:p-4"><p className="text-xs text-slate-500">Saídas no período</p><Money value={outflow} className="text-lg font-semibold text-rose-600" /></Card>
         <Card className="p-4 sm:p-4"><p className="text-xs text-slate-500">Transferências (líquido)</p><Money value={transfers} signed className="text-lg font-semibold" /></Card>
       </div>

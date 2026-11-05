@@ -97,25 +97,25 @@ export default function CalendarPage() {
                   key={d}
                   onClick={() => setSelected(sel === d ? null : d)}
                   className={cx(
-                    "flex min-h-16 flex-col items-stretch rounded-xl p-1 text-left transition sm:min-h-20 sm:p-1.5",
-                    sel === d ? "bg-navy-600 text-white" : "bg-slate-50 hover:bg-slate-100 dark:bg-navy-950 dark:hover:bg-navy-800",
-                    d === today && sel !== d && "ring-2 ring-navy-500",
+                    "flex min-h-16 min-w-0 flex-col items-stretch rounded-xl p-1 text-left transition active:scale-95 sm:min-h-20 sm:p-1.5",
+                    sel === d ? "bg-brand-400 font-semibold text-navy-950 shadow-[var(--shadow-glow)]" : "bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.07]",
+                    d === today && sel !== d && "ring-2 ring-brand-400",
                   )}
                 >
                   <span className="flex items-center justify-between text-xs font-medium">
                     {parts(d).d}
-                    {closes && <CreditCard className={cx("size-3", sel === d ? "text-white" : "text-violet-500")} aria-label="Fechamento de fatura" />}
+                    {closes && <CreditCard className={cx("size-3", sel === d ? "text-navy-950" : "text-violet-500 dark:text-violet-300")} aria-label="Fechamento de fatura" />}
                   </span>
-                  {inc > 0 && <span className={cx("mt-auto truncate text-[10px] font-medium", sel === d ? "text-emerald-200" : "text-emerald-600")}>+{formatMoneyCompact(inc).replace("R$ ", "")}</span>}
-                  {exp > 0 && <span className={cx("truncate text-[10px] font-medium", inc > 0 ? "" : "mt-auto", sel === d ? "text-rose-200" : overdue ? "text-rose-700" : "text-rose-500")}>−{formatMoneyCompact(exp).replace("R$ ", "")}</span>}
+                  {inc > 0 && <span className={cx("mt-auto truncate text-[10px] font-medium", sel === d ? "text-navy-950" : "text-emerald-600 dark:text-brand-400")}>+{formatMoneyCompact(inc).replace("R$ ", "")}</span>}
+                  {exp > 0 && <span className={cx("truncate text-[10px] font-medium", inc > 0 ? "" : "mt-auto", sel === d ? "text-navy-950" : overdue ? "text-rose-700 dark:text-rose-300" : "text-rose-500")}>−{formatMoneyCompact(exp).replace("R$ ", "")}</span>}
                 </button>
               );
             })}
           </div>
           <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-500">
-            <span className="text-emerald-600">+ entradas</span>
+            <span className="text-emerald-600 dark:text-brand-400">+ entradas</span>
             <span className="text-rose-500">− saídas e faturas</span>
-            <span className="flex items-center gap-1"><CreditCard className="size-3 text-violet-500" /> fecha fatura</span>
+            <span className="flex items-center gap-1"><CreditCard className="size-3 text-violet-500 dark:text-violet-300" /> fecha fatura</span>
           </div>
         </Card>
 
@@ -147,7 +147,7 @@ export default function CalendarPage() {
                               <div className="flex flex-col items-end gap-1">
                                 <Money value={e.invoice.total} className="text-sm font-semibold" />
                                 {e.invoice.remaining > 0 ? (
-                                  <button className="text-xs font-medium text-navy-600 dark:text-navy-300" onClick={() => forms.openInvoicePay(e.invoice)}>Pagar</button>
+                                  <button className="text-xs font-medium text-brand-700 hover:underline dark:text-brand-400" onClick={() => forms.openInvoicePay(e.invoice)}>Pagar</button>
                                 ) : (
                                   <Badge tone="green">Paga</Badge>
                                 )}

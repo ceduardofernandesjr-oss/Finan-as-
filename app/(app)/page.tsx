@@ -21,25 +21,25 @@ function Stat({
   label, value, icon: Icon, tone = "navy", sub, href,
 }: { label: string; value: number; icon: typeof Wallet; tone?: "navy" | "green" | "red" | "amber" | "violet"; sub?: React.ReactNode; href?: string }) {
   const tones = {
-    navy: "bg-navy-50 text-navy-700 dark:bg-navy-800 dark:text-navy-200",
-    green: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-    red: "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
-    amber: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-    violet: "bg-violet-50 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",
+    navy: "bg-slate-100 text-slate-700 ring-slate-200/80 dark:bg-white/[0.06] dark:text-slate-200 dark:ring-white/10",
+    green: "bg-brand-50 text-brand-700 ring-brand-200/80 dark:bg-brand-400/10 dark:text-brand-400 dark:ring-brand-400/20",
+    red: "bg-rose-50 text-rose-600 ring-rose-200/80 dark:bg-rose-500/10 dark:text-rose-400 dark:ring-rose-400/20",
+    amber: "bg-amber-50 text-amber-700 ring-amber-200/80 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20",
+    violet: "bg-violet-50 text-violet-700 ring-violet-200/80 dark:bg-violet-400/10 dark:text-violet-300 dark:ring-violet-400/20",
   };
   const body = (
-    <Card className="h-full p-4 transition hover:ring-navy-200 sm:p-4 dark:hover:ring-navy-600">
-      <div className="flex items-center gap-2">
-        <span className={cx("flex size-8 items-center justify-center rounded-lg", tones[tone])}>
-          <Icon className="size-4" />
-        </span>
+    <Card className="group h-full p-4 transition duration-200 hover:-translate-y-0.5 hover:ring-slate-300 sm:p-4 dark:hover:ring-white/15">
+      <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
+        <span className={cx("flex size-8 items-center justify-center rounded-xl ring-1 ring-inset transition group-hover:scale-105", tones[tone])}>
+          <Icon className="size-4" strokeWidth={2.1} />
+        </span>
       </div>
-      <Money value={value} className="mt-2 block text-lg font-semibold tracking-tight" />
+      <Money value={value} className="mt-2 block text-xl font-semibold" />
       {sub && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{sub}</p>}
     </Card>
   );
-  return href ? <Link href={href}>{body}</Link> : body;
+  return href ? <Link href={href} className="block rounded-[var(--radius-card)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400">{body}</Link> : body;
 }
 
 /** Destaque do topo: saldo disponível nas contas, saldo de cada conta e a previsão até o fim do mês. */
@@ -59,11 +59,14 @@ function SaldoDestaque({ balance, accounts, previsto, ate }: { balance: number; 
     });
   const valor = (c: number) => (oculto ? OCULTO : formatMoney(c));
   return (
-    <Card className="mb-5 overflow-hidden bg-gradient-to-br from-navy-700 to-navy-900 p-5 text-white ring-0 sm:p-6 dark:from-navy-800 dark:to-navy-950">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <Card className="relative mb-5 overflow-hidden !bg-navy-950 p-5 text-white !ring-white/[0.06] sm:p-7 dark:!bg-navy-900 dark:!ring-brand-400/15">
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-brand-400/25 blur-[90px]" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-32 right-24 size-64 rounded-full bg-brand-400/10 blur-[90px]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgb(255_255_255/0.06)_1px,transparent_1px)] bg-[size:18px_18px] [mask-image:linear-gradient(to_left,black,transparent_60%)]" />
+      <div className="relative flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="flex items-center gap-2 text-sm font-medium text-navy-100">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-white/15"><Wallet className="size-4" /></span>
+          <p className="flex items-center gap-2 text-sm font-medium text-slate-300">
+            <span className="flex size-8 items-center justify-center rounded-xl bg-brand-400 text-navy-950"><Wallet className="size-4" strokeWidth={2.3} /></span>
             Saldo disponível
             <button
               type="button"
@@ -71,26 +74,26 @@ function SaldoDestaque({ balance, accounts, previsto, ate }: { balance: number; 
               aria-label={oculto ? "Mostrar saldo" : "Ocultar saldo"}
               aria-pressed={oculto}
               title={oculto ? "Mostrar saldo" : "Ocultar saldo"}
-              className="flex size-8 items-center justify-center rounded-lg text-navy-100 transition hover:bg-white/15 hover:text-white focus-visible:outline-2 focus-visible:outline-white"
+              className="flex size-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white active:scale-90 focus-visible:outline-2 focus-visible:outline-brand-400"
             >
               {oculto ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           </p>
-          <p className={cx("mt-2 text-3xl font-bold tracking-tight tabular sm:text-4xl", !oculto && balance < 0 && "text-rose-200")} aria-live="polite">{valor(balance)}</p>
-          <p className="mt-1 text-sm text-navy-100">
-            Previsto para {ate}: <span className={cx("font-semibold tabular", !oculto && previsto < 0 ? "text-rose-200" : "text-white")}>{valor(previsto)}</span>
+          <p className={cx("money mt-3 text-4xl font-semibold sm:text-5xl", !oculto && balance < 0 && "text-rose-300")} aria-live="polite">{valor(balance)}</p>
+          <p className="mt-2 text-sm text-slate-400">
+            Previsto para {ate}: <span className={cx("money font-semibold", !oculto && previsto < 0 ? "text-rose-300" : "text-brand-400")}>{valor(previsto)}</span>
           </p>
         </div>
-        <Link href="/contas" className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium transition hover:bg-white/25">Ver contas</Link>
+        <Link href="/contas" className="rounded-xl bg-white/[0.08] px-3.5 py-2 text-sm font-medium ring-1 ring-white/10 transition hover:bg-brand-400 hover:text-navy-950 hover:ring-brand-400 active:scale-95">Ver contas</Link>
       </div>
       {accounts.length > 0 && (
-        <ul className="mt-4 flex flex-wrap gap-2">
+        <ul className="relative mt-5 flex flex-wrap gap-2">
           {accounts.map((a) => (
             <li key={a.id}>
-              <Link href={`/contas/${a.id}`} className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs transition hover:bg-white/20">
+              <Link href={`/contas/${a.id}`} className="flex items-center gap-2 rounded-full bg-white/[0.06] px-3 py-1.5 text-xs ring-1 ring-white/10 transition hover:bg-white/[0.12]">
                 <span className="size-2 rounded-full" style={{ background: a.color }} />
-                <span className="text-navy-100">{a.name}</span>
-                <span className={cx("font-semibold tabular", !oculto && a.saldo < 0 ? "text-rose-200" : "text-white")}>{valor(a.saldo)}</span>
+                <span className="text-slate-300">{a.name}</span>
+                <span className={cx("money font-semibold", !oculto && a.saldo < 0 ? "text-rose-300" : "text-white")}>{valor(a.saldo)}</span>
               </Link>
             </li>
           ))}
@@ -160,16 +163,20 @@ export default function Dashboard() {
       <PageHeader title="Visão geral" sub={`Hoje é ${formatBR(today)}`} actions={<PeriodBar p={p} />} />
 
       {empty && (
-        <Card className="mb-5 bg-gradient-to-br from-navy-700 to-navy-900 text-white ring-0 dark:from-navy-800 dark:to-navy-950">
-          <p className="text-lg font-semibold">Vamos começar?</p>
-          <p className="mt-1 text-sm text-navy-100">Três passos e seu painel ganha vida:</p>
-          <ol className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-            <li className="rounded-xl bg-white/10 p-3">1. Cadastre suas contas e o saldo de hoje.</li>
-            <li className="rounded-xl bg-white/10 p-3">2. Cadastre seus cartões de crédito.</li>
-            <li className="rounded-xl bg-white/10 p-3">3. Lance receitas, despesas e contas fixas.</li>
+        <Card className="relative mb-5 overflow-hidden !bg-navy-950 text-white !ring-white/[0.06] sm:p-7 dark:!bg-navy-900 dark:!ring-brand-400/15">
+          <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-brand-400/25 blur-[90px]" />
+          <p className="relative text-xl font-semibold tracking-tight">Vamos começar?</p>
+          <p className="relative mt-1 text-sm text-slate-400">Três passos e seu painel ganha vida:</p>
+          <ol className="relative mt-4 grid gap-2 text-sm sm:grid-cols-3">
+            {["Cadastre suas contas e o saldo de hoje.", "Cadastre seus cartões de crédito.", "Lance receitas, despesas e contas fixas."].map((t, i) => (
+              <li key={t} className="flex gap-3 rounded-2xl bg-white/[0.05] p-3 ring-1 ring-white/[0.08]">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-brand-400 text-xs font-bold text-navy-950">{i + 1}</span>
+                {t}
+              </li>
+            ))}
           </ol>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => forms.openAccount()}>Cadastrar conta</Button>
+          <div className="relative mt-5 flex flex-wrap gap-2">
+            <Button onClick={() => forms.openAccount()}>Cadastrar conta</Button>
             <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => forms.openCard()}>Cadastrar cartão</Button>
           </div>
         </Card>
@@ -180,14 +187,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Receitas" value={t.receitas} icon={ArrowUpCircle} tone="green" href="/receitas" sub={<>recebido <Money value={t.recebido} /></>} />
         <Stat label="Despesas" value={t.despesas} icon={ArrowDownCircle} tone="red" href="/despesas" sub={<>pago ou no cartão <Money value={t.pago} /></>} />
-        <Stat label="Saldo do período" value={t.saldo} icon={Scale} tone={t.saldo >= 0 ? "green" : "red"} sub="receitas − despesas" />
+        <Stat label="Resultado do período" value={t.saldo} icon={Scale} tone={t.saldo >= 0 ? "green" : "red"} sub="receitas − despesas" />
         <Stat label="A pagar no período" value={toPay} icon={Receipt} tone="amber" href="/a-pagar" sub="contas e faturas" />
         <Stat label="A receber no período" value={toReceive} icon={PiggyBank} tone="green" href="/a-receber" />
         <Stat label="Vencidas" value={sum(overdue.map((o) => o.amount))} icon={AlertTriangle} tone="red" href="/a-pagar" sub={`${overdue.length} em atraso`} />
         <Stat label="Próximos 30 dias" value={sum(future.map((f) => f.amount))} icon={CalendarClock} tone="amber" href="/calendario" sub="despesas futuras" />
-        <Stat label="Total das dívidas" value={loanDebt + cardDebt} icon={Landmark} tone="red" href="/dividas" sub={<>empréstimos <Money value={loanDebt} /></>} />
         <Stat label="Limite disponível" value={sum(usages.map((u) => u.available))} icon={CreditCard} tone="violet" href="/cartoes" sub={`de ${cards.length} cartões`} />
         <Stat label="Faturas em aberto" value={sum(openInvoices.map((i) => i.remaining))} icon={CreditCard} tone="violet" href="/cartoes" sub={`${openInvoices.length} faturas`} />
+        <Stat label="Total das dívidas" value={loanDebt + cardDebt} icon={Landmark} tone="red" href="/dividas" sub={<>empréstimos <Money value={loanDebt} /></>} />
         <div className="col-span-2 lg:col-span-1">
           <Stat label="Patrimônio" value={worth.at(-1)?.patrimonio ?? 0} icon={TrendingUp} href="/relatorios" sub="contas − dívidas" />
         </div>
@@ -206,7 +213,7 @@ export default function Dashboard() {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <Card>
-          <CardTitle action={<Link href="/a-pagar" className="text-xs font-medium text-navy-600 dark:text-navy-300">Ver tudo</Link>}>Próximos vencimentos</CardTitle>
+          <CardTitle action={<Link href="/a-pagar" className="text-xs font-medium text-brand-700 hover:underline dark:text-brand-400">Ver tudo</Link>}>Próximos vencimentos</CardTitle>
           {upcoming.length ? (
             <ul className="divide-y divide-slate-100 dark:divide-navy-800">
               {upcoming.map((c) => (
@@ -253,7 +260,7 @@ export default function Dashboard() {
         <div className="space-y-5">
           {budgets.length > 0 && (
             <Card>
-              <CardTitle action={<Link href="/planejamento" className="text-xs font-medium text-navy-600 dark:text-navy-300">Orçamento</Link>}>Alertas de orçamento</CardTitle>
+              <CardTitle action={<Link href="/planejamento" className="text-xs font-medium text-brand-700 hover:underline dark:text-brand-400">Orçamento</Link>}>Alertas de orçamento</CardTitle>
               <ul className="space-y-3">
                 {budgets.slice(0, 4).map((b) => (
                   <li key={b.budget.id}>
@@ -274,7 +281,7 @@ export default function Dashboard() {
             <Card>
               <CardTitle>Inteligência financeira</CardTitle>
               <p className="text-sm text-slate-500">As análises aparecem conforme você registra lançamentos.</p>
-              <Link href="/inteligencia" className="mt-2 inline-block text-sm font-medium text-navy-600 dark:text-navy-300">Abrir</Link>
+              <Link href="/inteligencia" className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline dark:text-brand-400">Abrir</Link>
             </Card>
           )}
         </div>

@@ -35,7 +35,7 @@ export default function IntelligencePage() {
         <div className="lg:col-span-2">
           <Card className="lg:sticky lg:top-6">
             <CardTitle sub="Olha seu saldo, as contas, faturas e parcelas dos próximos 30 dias, o que vai entrar e o orçamento da categoria">
-              <span className="flex items-center gap-2"><HelpCircle className="size-4 text-navy-500" />Posso gastar?</span>
+              <span className="flex items-center gap-2"><HelpCircle className="size-4 text-brand-600 dark:text-brand-400" />Posso gastar?</span>
             </CardTitle>
             <form
               className="space-y-3"
@@ -62,7 +62,7 @@ export default function IntelligencePage() {
                 )}
               >
                 <p className="flex items-center gap-2 font-semibold">
-                  {tone === "green" && <CheckCircle2 className="size-5 text-emerald-600" />}
+                  {tone === "green" && <CheckCircle2 className="size-5 text-emerald-600 dark:text-brand-400" />}
                   {tone === "amber" && <AlertTriangle className="size-5 text-amber-600" />}
                   {tone === "red" && <OctagonAlert className="size-5 text-rose-600" />}
                   {answer.title}
