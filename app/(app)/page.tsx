@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { AlertTriangle, ArrowDownCircle, ArrowUpCircle, CalendarClock, CreditCard, Landmark, PiggyBank, Receipt, Scale, TrendingUp, Wallet } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, ArrowDownCircle, ArrowUpCircle, CalendarClock, CreditCard, Eye, EyeOff, Landmark, PiggyBank, Receipt, Scale, TrendingUp, Wallet } from "lucide-react";
 import { useFinance } from "@/lib/store";
 import { addDays, formatBR, monthEnd, monthKey, monthLabel, monthRange, addMonths, monthStart } from "@/lib/finance/dates";
 import { accountBalance } from "@/lib/finance/ledger";
@@ -42,7 +43,21 @@ function Stat({
 }
 
 /** Destaque do topo: saldo disponível nas contas, saldo de cada conta e a previsão até o fim do mês. */
+const CHAVE_OCULTAR = "financas.ocultarSaldo";
+const OCULTO = "R$ ••••••";
+
 function SaldoDestaque({ balance, accounts, previsto, ate }: { balance: number; accounts: { id: string; name: string; color: string; saldo: number }[]; previsto: number; ate: string }) {
+  // a escolha fica guardada neste aparelho
+  const [oculto, setOculto] = useState(false);
+  useEffect(() => {
+    try { setOculto(localStorage.getItem(CHAVE_OCULTAR) === "1"); } catch { /* armazenamento bloqueado */ }
+  }, []);
+  const alternar = () =>
+    setOculto((v) => {
+      try { localStorage.setItem(CHAVE_OCULTAR, v ? "0" : "1"); } catch { /* armazenamento bloqueado */ }
+      return !v;
+    });
+  const valor = (c: number) => (oculto ? OCULTO : formatMoney(c));
   return (
     <Card className="mb-5 overflow-hidden bg-gradient-to-br from-navy-700 to-navy-900 p-5 text-white ring-0 sm:p-6 dark:from-navy-800 dark:to-navy-950">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -50,10 +65,20 @@ function SaldoDestaque({ balance, accounts, previsto, ate }: { balance: number; 
           <p className="flex items-center gap-2 text-sm font-medium text-navy-100">
             <span className="flex size-8 items-center justify-center rounded-lg bg-white/15"><Wallet className="size-4" /></span>
             Saldo disponível
+            <button
+              type="button"
+              onClick={alternar}
+              aria-label={oculto ? "Mostrar saldo" : "Ocultar saldo"}
+              aria-pressed={oculto}
+              title={oculto ? "Mostrar saldo" : "Ocultar saldo"}
+              className="flex size-8 items-center justify-center rounded-lg text-navy-100 transition hover:bg-white/15 hover:text-white focus-visible:outline-2 focus-visible:outline-white"
+            >
+              {oculto ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
           </p>
-          <p className={cx("mt-2 text-3xl font-bold tracking-tight tabular sm:text-4xl", balance < 0 && "text-rose-200")}>{formatMoney(balance)}</p>
+          <p className={cx("mt-2 text-3xl font-bold tracking-tight tabular sm:text-4xl", !oculto && balance < 0 && "text-rose-200")} aria-live="polite">{valor(balance)}</p>
           <p className="mt-1 text-sm text-navy-100">
-            Previsto para {ate}: <span className={cx("font-semibold tabular", previsto < 0 ? "text-rose-200" : "text-white")}>{formatMoney(previsto)}</span>
+            Previsto para {ate}: <span className={cx("font-semibold tabular", !oculto && previsto < 0 ? "text-rose-200" : "text-white")}>{valor(previsto)}</span>
           </p>
         </div>
         <Link href="/contas" className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium transition hover:bg-white/25">Ver contas</Link>
@@ -65,7 +90,7 @@ function SaldoDestaque({ balance, accounts, previsto, ate }: { balance: number; 
               <Link href={`/contas/${a.id}`} className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs transition hover:bg-white/20">
                 <span className="size-2 rounded-full" style={{ background: a.color }} />
                 <span className="text-navy-100">{a.name}</span>
-                <span className={cx("font-semibold tabular", a.saldo < 0 ? "text-rose-200" : "text-white")}>{formatMoney(a.saldo)}</span>
+                <span className={cx("font-semibold tabular", !oculto && a.saldo < 0 ? "text-rose-200" : "text-white")}>{valor(a.saldo)}</span>
               </Link>
             </li>
           ))}
