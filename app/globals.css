@@ -139,6 +139,10 @@ body {
   @apply bg-slate-50 text-slate-900 antialiased dark:bg-navy-950 dark:text-slate-100;
   -webkit-tap-highlight-color: transparent;
   font-feature-settings: "cv11", "ss01";
+  /* comportamento de app: segurar o dedo não abre menu de link nem seleciona texto */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
   /* sem zoom de toque duplo; rolagem continua normal */
   touch-action: pan-x pan-y;
   -webkit-text-size-adjust: 100%;
@@ -207,6 +211,14 @@ input[type="date"] {
 @media (prefers-reduced-motion: reduce) {
   .stagger > * { animation-delay: 0ms !important; }
 }
+
+/* campos de digitação continuam selecionáveis (copiar/colar) */
+input, textarea, select, [contenteditable="true"] {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+a, img { -webkit-user-drag: none; }
 
 /* iPhone aproxima a tela ao focar campos com fonte < 16px: no celular os campos usam 16px */
 @media (max-width: 639px) {
