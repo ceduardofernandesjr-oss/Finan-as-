@@ -15,12 +15,15 @@ export const viewport: Viewport = {
   themeColor: "#080a08",
   width: "device-width",
   initialScale: 1,
+  // comportamento de app: sem zoom de pinça nem de toque duplo
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 
 // Aplica o tema antes de pintar a tela (sem "piscar"). O escuro é o padrão da identidade visual;
 // quem escolheu o claro no botão de tema continua no claro.
-const themeScript = `(function(){try{var t=localStorage.getItem('tema');var d=t==='claro'?false:t==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;if(d)document.documentElement.classList.add('dark')}catch(e){document.documentElement.classList.add('dark')}})()`;
+const themeScript = `(function(){try{var t=localStorage.getItem('tema');var d=t==='claro'?false:t==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;if(d)document.documentElement.classList.add('dark')}catch(e){document.documentElement.classList.add('dark')}try{document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

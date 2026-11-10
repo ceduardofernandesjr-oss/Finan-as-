@@ -139,6 +139,10 @@ body {
   @apply bg-slate-50 text-slate-900 antialiased dark:bg-navy-950 dark:text-slate-100;
   -webkit-tap-highlight-color: transparent;
   font-feature-settings: "cv11", "ss01";
+  /* sem zoom de toque duplo; rolagem continua normal */
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 /* brilho verde muito sutil no fundo escuro: dá profundidade sem poluir */
 .dark body {
@@ -202,4 +206,9 @@ input[type="date"] {
 .stagger > :nth-child(n + 6) { animation-delay: 200ms; }
 @media (prefers-reduced-motion: reduce) {
   .stagger > * { animation-delay: 0ms !important; }
+}
+
+/* iPhone aproxima a tela ao focar campos com fonte < 16px: no celular os campos usam 16px */
+@media (max-width: 639px) {
+  input, select, textarea { font-size: 16px !important; }
 }
