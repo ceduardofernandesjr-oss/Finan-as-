@@ -4,7 +4,7 @@ Next.js + TypeScript + Tailwind + Supabase. Funciona no computador e no celular 
 
 ## O que tem
 
-- **Dashboard**: saldo, receitas, despesas, saldo do período, a pagar, a receber, vencidas, próximos 30 dias, dívidas, limite dos cartões, faturas em aberto e patrimônio. Gráficos de receitas x despesas, categorias, patrimônio, fluxo de caixa, evolução mensal e comparativo. Períodos: semana, mês, trimestre e ano.
+- **Dashboard**: saldo disponível (com botão de ocultar), saldo consolidado (com investimentos), patrimônio líquido e previsão até o fim do mês. Resumo do período com receitas, despesas, resultado e a receber, cada um comparado ao período anterior e com o quanto já foi realizado. Previsão do saldo dia a dia, vencimentos (em atraso e próximos 7 dias, com botão de pagar), a pagar, vencidas, próximos 30 dias, dívidas, limite dos cartões e faturas em aberto. Gráficos de receitas x despesas, gastos por categoria, patrimônio, fluxo de caixa, evolução mensal e comparativo. Períodos: semana, mês, trimestre e ano.
 - **Receitas e despesas**: categorias e subcategorias, conta, vencimento, pagamento, forma de pagamento, recorrência (semanal, quinzenal, mensal, anual), observações e situação (pago, pendente, atrasado, que é automático).
 - **Cartões**: vários cartões, limite, fechamento, vencimento, melhor dia de compra, compras parceladas (cada parcela na fatura certa), faturas abertas, fechadas, vencidas e pagas, pagamento parcial de fatura e parcelas futuras.
 - **Contas e carteiras**: corrente, poupança, carteira digital, dinheiro e investimentos, com extrato e saldo após cada movimento. Transferências não contam como receita nem como despesa.
@@ -23,6 +23,9 @@ Next.js + TypeScript + Tailwind + Supabase. Funciona no computador e no celular 
 - O **pagamento da fatura** só tira o dinheiro da conta. Não é outra despesa.
 - **Transferência** entre suas contas não é receita nem despesa.
 - Todos os valores são guardados em centavos (sem erro de arredondamento).
+- **Saldo disponível** = contas ativas, menos as de investimento, na data de hoje. **Saldo consolidado** = disponível + investimentos. **Patrimônio líquido** = tudo o que há nas contas (inclusive arquivadas) − faturas de cartão em aberto − saldo devedor dos empréstimos.
+- **Previsão do fim do mês**: parte do saldo disponível de hoje e soma o que está pendente até lá (contas a pagar e a receber, faturas e lançamentos já marcados como pagos com data futura). Pendências atrasadas entram como se fossem quitadas hoje.
+- **Comparativos**: sem lançamentos no período anterior, o painel diz isso em vez de mostrar uma porcentagem.
 
 ---
 

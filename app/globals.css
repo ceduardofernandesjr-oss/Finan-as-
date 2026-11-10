@@ -190,3 +190,16 @@ input[type="date"] {
 .grid > * {
   min-width: 0;
 }
+
+/* entrada em cascata, discreta (cards do painel) */
+.stagger > * {
+  animation: var(--animate-in) both;
+}
+.stagger > :nth-child(2) { animation-delay: 40ms; }
+.stagger > :nth-child(3) { animation-delay: 80ms; }
+.stagger > :nth-child(4) { animation-delay: 120ms; }
+.stagger > :nth-child(5) { animation-delay: 160ms; }
+.stagger > :nth-child(n + 6) { animation-delay: 200ms; }
+@media (prefers-reduced-motion: reduce) {
+  .stagger > * { animation-delay: 0ms !important; }
+}
