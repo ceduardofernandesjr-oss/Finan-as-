@@ -56,7 +56,7 @@ async function apiKey(force = false): Promise<string> {
   const r = await fetch(`${BASE}/auth`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ clientId: process.env.PLUGGY_CLIENT_ID, clientSecret: process.env.PLUGGY_CLIENT_SECRET }),
+    body: JSON.stringify({ clientId: (process.env.PLUGGY_CLIENT_ID ?? "").trim(), clientSecret: (process.env.PLUGGY_CLIENT_SECRET ?? "").trim() }),
     cache: "no-store",
   });
   if (r.status === 401 || r.status === 403) throw new HttpError(502, "A Pluggy recusou o Client ID / Client Secret. Confira as chaves na Vercel.");
