@@ -218,6 +218,12 @@ function acharCategoria(t: string, cats: Category[], kind: "despesa" | "receita"
   return { id: generica?.id ?? null, pecas: [], certeza: false };
 }
 
+/** Categoria provável para um texto qualquer (usada também na sincronização com o banco). */
+export function sugerirCategoria(texto: string, cats: Category[], kind: "despesa" | "receita"): { id: string | null; certeza: boolean } {
+  const r = acharCategoria(norm(texto), cats, kind);
+  return { id: r.id, certeza: r.certeza };
+}
+
 function nomesDe(x: Account | CreditCard): string[] {
   const out = [norm(x.name)];
   if ("institution" in x && x.institution) out.push(norm(x.institution));

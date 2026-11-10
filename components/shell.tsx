@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   ArrowDownCircle, ArrowLeftRight, ArrowUpCircle, BarChart3, Brain, CalendarDays, Calculator, CreditCard,
-  HandCoins, Landmark, LayoutDashboard, LogOut, Menu, MessageCircle, Moon, Plus, Receipt, Settings, Sun, Target, Wallet, X,
+  HandCoins, Landmark, LayoutDashboard, LogOut, Menu, MessageCircle, Moon, PlugZap, Plus, Receipt, Settings, Sun, Target, Wallet, X,
 } from "lucide-react";
 import { cx, IconButton } from "./ui";
 import { useForms } from "./forms/provider";
@@ -18,6 +18,7 @@ export const NAV: { href: string; label: string; icon: typeof LayoutDashboard }[
   { href: "/despesas", label: "Despesas", icon: ArrowDownCircle },
   { href: "/cartoes", label: "Cartões", icon: CreditCard },
   { href: "/contas", label: "Contas", icon: Wallet },
+  { href: "/conexoes", label: "Conexões bancárias", icon: PlugZap },
   { href: "/a-pagar", label: "Contas a pagar", icon: Receipt },
   { href: "/a-receber", label: "Contas a receber", icon: HandCoins },
   { href: "/dividas", label: "Dívidas", icon: Landmark },
@@ -33,7 +34,7 @@ export const NAV: { href: string; label: string; icon: typeof LayoutDashboard }[
 export const GRUPOS: { titulo: string; itens: string[] }[] = [
   { titulo: "Visão geral", itens: ["/", "/assistente"] },
   { titulo: "Movimentações", itens: ["/receitas", "/despesas", "/a-pagar", "/a-receber", "/calendario"] },
-  { titulo: "Contas e cartões", itens: ["/contas", "/cartoes", "/dividas"] },
+  { titulo: "Contas e cartões", itens: ["/contas", "/cartoes", "/dividas", "/conexoes"] },
   { titulo: "Planejamento", itens: ["/planejamento", "/simulador"] },
   { titulo: "Análises", itens: ["/relatorios", "/inteligencia"] },
 ];

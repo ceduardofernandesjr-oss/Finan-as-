@@ -3,7 +3,7 @@ import type { CardInstallment, CardPurchase, CreditCard, Transaction } from "../
 import { addMonths, daysInMonth, monthStart, parts, toISO, type ISODate } from "./dates";
 import { splitEvenly, sum } from "./money";
 
-type CardDays = Pick<CreditCard, "closing_day" | "due_day">;
+export type CardDays = Pick<CreditCard, "closing_day" | "due_day">;
 
 /** Data de fechamento da fatura do mês (AAAA-MM-01). Dia 31 em mês curto vira o último dia. */
 export function closingDate(card: CardDays, invoiceMonth: ISODate): ISODate {

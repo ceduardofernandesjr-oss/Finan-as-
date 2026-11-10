@@ -67,6 +67,25 @@ Abra o endereço, clique em **Criar conta**, confirme o e-mail e pronto. Comece 
 
 ---
 
+## Conexão bancária (Pluggy / Open Finance)
+Em **Contas e cartões → Conexões bancárias** o app busca os lançamentos das suas contas e cartões e mostra tudo para você **revisar antes de importar**. É somente leitura: o app não movimenta dinheiro.
+
+**Configurar (uma vez):**
+1. Crie a conta em **dashboard.pluggy.ai** (vem um teste grátis de cerca de 15 dias; faça os passos 4 e 5 dentro dele).
+2. Em **Applications**, crie uma aplicação e copie o **Client ID** e o **Client Secret**.
+3. Na Vercel → Settings → Environment Variables, cadastre `PLUGGY_CLIENT_ID`, `PLUGGY_CLIENT_SECRET` e `PLUGGY_ALLOWED_EMAILS` (o seu e-mail de login). Faça **Redeploy**.
+4. Em **meu.pluggy.ai** (gratuito para uso pessoal), conecte seus bancos pelo Open Finance.
+5. No painel da Pluggy, adicione o conector **MeuPluggy** à aplicação, abra a aplicação de demonstração, autorize o MeuPluggy (uma vez por banco) e copie o **Item ID** de cada conexão.
+6. No app, cole o Item ID em “Conectar banco” e escolha para onde vai cada conta (conta ou cartão existente, criar novo, ou não sincronizar).
+
+**Como os lançamentos entram:**
+- Conta: só o que já foi efetivado (agendados ficam de fora). Cartão: todas as compras, inclusive da fatura aberta; cada parcela entra como chega do banco, com o número (ex.: “Loja (2/5)”).
+- Pagamento de fatura na conta vira **pagamento de fatura** (não é despesa). Transferência entre duas contas conectadas vira **uma** transferência.
+- O que parece já ter sido lançado à mão começa como “Ignorar”, com o motivo. Pagamentos e estornos no cartão ficam de fora.
+- Cada lançamento do banco só é tratado uma vez: depois de importado ou ignorado ele não volta (há a opção “Rever lançamentos ignorados”).
+- O botão **ajustar** deixa o saldo da conta no app igual ao do banco (mexe só no saldo inicial).
+- Banco de dados: tabelas `bank_links`, `bank_link_accounts`, `bank_imports` e a função `import_bank_items` (`supabase/migrations/20261109_conexoes_bancarias.sql`, também no `schema.sql`).
+
 ## Dicas
 - **Backup:** em Configurações → Fazer backup, de vez em quando. O Supabase grátis pausa projetos sem uso por 7 dias. Os dados não se perdem, é só entrar no painel do Supabase e clicar em "Restore".
 - **Importar extrato:** em Configurações → Importar CSV ou Excel. O app reconhece as colunas de data, descrição e valor, e desmarca as linhas que parecem já cadastradas.
@@ -80,7 +99,8 @@ npm run dev                  # http://localhost:3000
 npm test                     # testes das regras financeiras
 ```
 - `supabase/schema.sql`: tabelas, RLS, funções (compra parcelada, empréstimo, pagamento parcial, restauração de backup). Pode rodar de novo sem perder dados.
-- `supabase/test/`: testes de segurança e regras do banco (Postgres local).
+- `supabase/test/`: testes de segurança e regras do banco (Postgres local): `stub.sql`, `schema.sql`, `rls_test.sql` e `bank_test.sql`, nessa ordem.
+- `supabase/migrations/`: mudanças no banco já aplicadas, uma por arquivo (aditivas).
 - `lib/finance/`: regras de negócio puras (cartões, saldos, empréstimos, relatórios, projeções, análises), testadas em `tests/`.
 - `lib/store.tsx`: carrega os dados do usuário e faz as operações. `components/forms/`: formulários com validação (zod).
 
