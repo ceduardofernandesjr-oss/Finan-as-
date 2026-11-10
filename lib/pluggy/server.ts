@@ -109,18 +109,23 @@ export async function listAccounts(itemId: string): Promise<BankAccountInfo[]> {
   return (r.results ?? []).map(normalizeAccount);
 }
 
-/** Todas as transações da conta no intervalo (páginas de 500). */
+/**
+ * Todas as transações da conta no intervalo. Usa GET /v2/transactions (paginação por cursor, 500 por página):
+ * a Pluggy desativou o GET /transactions antigo (responde 410).
+ */
 export async function listTransactions(accountId: string, kind: "conta" | "cartao", from: string, to: string): Promise<BankTx[]> {
   const out: BankTx[] = [];
-  for (let page = 1; page <= 40; page++) {
-    const q = new URLSearchParams({ accountId, from, to, pageSize: "500", page: String(page) });
+  let path = `/v2/transactions?${new URLSearchParams({ accountId, dateFrom: from, dateTo: to })}`;
+  for (let pagina = 0; pagina < 100; pagina++) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const r = await get<{ results: any[]; totalPages?: number }>(`/transactions?${q}`);
+    const r = await get<{ results: any[]; next?: string | null }>(path);
     for (const raw of r.results ?? []) {
       const t = normalizeTx({ ...raw, accountId: raw.accountId ?? accountId }, kind);
       if (importable(t, kind)) out.push(t);
     }
-    if (!r.totalPages || page >= r.totalPages) break;
+    if (!r.next) break;
+    // `next` já vem pronto para colar depois do caminho (ex.: "?accountId=...&after=...")
+    path = `/v2/transactions${r.next.startsWith("?") ? r.next : `?${r.next}`}`;
   }
   return out;
 }
