@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.finan_as_brown.twa",
+      "sha256_cert_fingerprints": [
+        "86:D6:71:57:B4:5F:67:52:2D:31:27:36:7A:8C:13:34:4D:29:BF:85:E2:5F:6C:39:6D:AC:65:C7:F3:83:7A:E7"
+      ]
+    }
+  }
+]
