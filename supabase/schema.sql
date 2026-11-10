@@ -514,6 +514,15 @@ begin
                                 (p->>'total')::bigint, jsonb_array_length(p->'installments'), (p->>'purchase_date')::date,
                                 coalesce(p->>'notes', ''), p->'installments');
       n := n + 1;
+    elsif e->>'action' = 'quitar' then
+      -- pagamento visto no banco quita um lançamento pendente que já existe no app
+      update transactions
+         set paid_date = (e->>'paid_date')::date,
+             account_id = coalesce(nullif(e->>'account_id', '')::uuid, account_id)
+       where id = (e->>'transaction_id')::uuid and paid_date is null
+       returning id into v_tx;
+      if v_tx is null then raise exception 'O lançamento a quitar não existe ou já foi pago. Sincronize de novo.'; end if;
+      n := n + 1;
     elsif coalesce(e->>'action', '') <> 'ignorar' then
       raise exception 'ação inválida: %', e->>'action';
     end if;

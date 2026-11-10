@@ -27,6 +27,14 @@ interface LinkAcc {
 }
 interface ItemResp { item: { id: string; institution: string; status: string; lastUpdatedAt: string | null }; accounts: BankAccountInfo[] }
 
+/** Nome para mostrar: pelo MeuPluggy o conector é sempre "MeuPluggy", então usa o nome das contas. */
+function nomeBanco(resp: ItemResp): string {
+  if (!/meu ?pluggy/i.test(resp.item.institution)) return resp.item.institution;
+  const contas = resp.accounts.filter((a) => a.kind === "conta").map((a) => a.name);
+  const nome = (contas[0] ?? resp.accounts[0]?.name ?? "Banco").replace(/\s*-\s*Institui.*$/i, "").replace(/\s*S\.?A\.?$/i, "").trim();
+  return nome.slice(0, 120) || "Banco";
+}
+
 async function api<T>(path: string, body?: unknown): Promise<T> {
   let r: Response;
   try {
@@ -108,7 +116,9 @@ function Mapear({
       const igual = data.accounts.find((x) => !x.archived && norm(x.name) === nome);
       return igual ? `acc:${igual.id}` : "nova";
     }
-    const igual = data.cards.find((x) => !x.archived && (norm(x.name) === nome || norm(x.institution) === norm(resp.item.institution)));
+    // um cartão do app só pode receber um cartão do banco
+    const usados = new Set(maps.filter((m) => m.card_id).map((m) => m.card_id));
+    const igual = data.cards.find((x) => !x.archived && norm(x.name) === nome && !usados.has(x.id));
     return igual ? `card:${igual.id}` : "nova";
   };
   const [dest, setDest] = useState<Record<string, Destino>>(() => Object.fromEntries(resp.accounts.map((a) => [a.id, inicial(a)])));
@@ -117,10 +127,11 @@ function Mapear({
   const salvar = () =>
     exec(async () => {
       let linkId = link?.id;
+      if (link && link.institution !== nomeBanco(resp)) await ok(db().from("bank_links").update({ institution: nomeBanco(resp) }).eq("id", link.id));
       if (!linkId) {
         const existentes = await ok(db().from("bank_links").select("*").eq("item_id", resp.item.id));
         const ja = ((existentes ?? []) as Link[]).find((l) => l.item_id === resp.item.id);
-        linkId = ja?.id ?? await inserir("bank_links", { item_id: resp.item.id, institution: resp.item.institution });
+        linkId = ja?.id ?? await inserir("bank_links", { item_id: resp.item.id, institution: nomeBanco(resp) });
       }
       for (const a of resp.accounts) {
         const d = dest[a.id];
@@ -128,10 +139,10 @@ function Mapear({
         let card_id: string | null = null;
         if (d === "nova" && a.kind === "conta") {
           const type: AccountType = /SAVINGS/i.test(a.subtype) ? "poupanca" : "corrente";
-          account_id = await inserir("accounts", { name: `${resp.item.institution} ${a.name}`.slice(0, 80), type, initial_balance: 0, color: "#b7f000" });
+          account_id = await inserir("accounts", { name: (/meu ?pluggy/i.test(resp.item.institution) ? nomeBanco({ ...resp, accounts: [a] }) : `${resp.item.institution} ${a.name}`).slice(0, 80), type, initial_balance: 0, color: "#b7f000" });
         } else if (d === "nova") {
           card_id = await inserir("credit_cards", {
-            name: a.name.slice(0, 60), institution: resp.item.institution.slice(0, 60), brand: "Outra", limit_amount: Math.max(0, a.creditLimit ?? 0),
+            name: a.name.slice(0, 60), institution: nomeBanco(resp).slice(0, 60), brand: "Outra", limit_amount: Math.max(0, a.creditLimit ?? 0),
             closing_day: a.closingDay ?? 1, due_day: a.dueDay ?? 10, color: "#7c3aed",
           });
         } else if (d.startsWith("acc:")) account_id = d.slice(4);
@@ -149,7 +160,7 @@ function Mapear({
       open
       onClose={onClose}
       size="lg"
-      title={`${resp.item.institution}: para onde vai cada conta?`}
+      title={`${nomeBanco(resp)}: para onde vai cada conta?`}
       footer={<><Button variant="ghost" onClick={onClose}>Cancelar</Button><Button loading={busy} onClick={salvar}>Salvar</Button></>}
     >
       <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">Os lançamentos de cada conta do banco entram na conta ou no cartão escolhido aqui. Nada é importado sem você revisar.</p>
@@ -181,12 +192,14 @@ function Mapear({
 // ------------------------------------------------------------------ revisão
 
 const ROTULO: Record<Acao, string> = {
-  despesa: "Despesa", receita: "Receita", transferencia: "Transferência entre contas", fatura: "Pagamento de fatura", compra: "Compra no cartão", ignorar: "Ignorar",
+  despesa: "Despesa", receita: "Receita", transferencia: "Transferência entre contas", fatura: "Pagamento de fatura", compra: "Compra no cartão",
+  quitar: "Marcar a conta do app como paga", ignorar: "Ignorar",
 };
 
 function opcoes(s: Sugestao): Acao[] {
   if (s.map.kind === "cartao") return s.tx.direction === "saida" ? ["compra", "ignorar"] : ["ignorar"];
-  return s.tx.direction === "saida" ? ["despesa", "transferencia", "fatura", "ignorar"] : ["receita", "transferencia", "ignorar"];
+  const quitar: Acao[] = s.match_id ? ["quitar"] : [];
+  return s.tx.direction === "saida" ? [...quitar, "despesa", "transferencia", "fatura", "ignorar"] : [...quitar, "receita", "transferencia", "ignorar"];
 }
 
 function LinhaRevisao({ s, onChange }: { s: Sugestao; onChange: (s: Sugestao) => void }) {
@@ -220,7 +233,7 @@ function LinhaRevisao({ s, onChange }: { s: Sugestao; onChange: (s: Sugestao) =>
       </div>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         <Select aria-label="O que fazer" value={s.acao} onChange={(e) => mudarAcao(e.target.value as Acao)} disabled={opcoes(s).length === 1}>
-          {opcoes(s).map((o) => <option key={o} value={o}>{ROTULO[o]}</option>)}
+          {opcoes(s).map((o) => <option key={o} value={o}>{o === "quitar" && s.tx.direction === "entrada" ? "Marcar a conta do app como recebida" : ROTULO[o]}</option>)}
         </Select>
         {(s.acao === "despesa" || s.acao === "receita" || s.acao === "compra") && (
           <CategorySelect kind={kindCat} value={s.category_id} onChange={(id) => onChange({ ...s, category_id: id })} />
@@ -410,7 +423,7 @@ export default function Conexoes() {
                       sub={link.last_sync_at ? `Última sincronização: ${new Date(link.last_sync_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}` : "Ainda não sincronizado"}
                       action={<Badge tone={info && "erro" in info ? "red" : "green"}>{info && "erro" in info ? "com erro" : "conectado"}</Badge>}
                     >
-                      {link.institution}
+                      {info && "accounts" in info ? nomeBanco(info) : link.institution}
                     </CardTitle>
                     {info && "erro" in info && <p className="mb-3 text-sm text-rose-600 dark:text-rose-400">{info.erro}</p>}
                     <ul className="divide-y divide-slate-100 dark:divide-white/[0.06]">
@@ -432,7 +445,7 @@ export default function Conexoes() {
                                 <p className="text-slate-500 dark:text-slate-400">{m.kind === "cartao" ? "fatura no banco" : "no banco"} <Money value={b.balance} className="font-semibold text-slate-900 dark:text-white" /></p>
                                 {saldoApp !== null && (
                                   <p className={cx(diff ? "text-amber-700 dark:text-amber-300" : "text-brand-700 dark:text-brand-400")}>
-                                    no app <Money value={saldoApp} className="font-semibold" />{diff ? <> · <button className="font-medium underline" onClick={() => ajustar(m.account_id!, b.balance)}>ajustar</button></> : " ✓"}
+                                    no app <Money value={saldoApp} className="font-semibold" />{diff ? <> · <button className="font-medium underline" onClick={() => ajustar(m.account_id!, b.balance)}>igualar ao banco</button></> : " ✓"}
                                   </p>
                                 )}
                               </div>

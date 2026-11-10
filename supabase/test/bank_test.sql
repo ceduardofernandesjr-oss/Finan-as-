@@ -40,6 +40,18 @@ begin
   exception when check_violation then null; end;
   select count(*) into n from bank_imports where external_id='t5'; assert n = 0, 'lote parcial gravado';
   begin perform import_bank_items('[{"external_id":"t7","action":"apagar"}]'); assert false; exception when raise_exception then null; end;
+  -- quitar: pagamento do banco marca como paga uma conta pendente do app
+  insert into transactions (kind, description, amount, due_date) values ('despesa','Luz pendente',18900,'2026-11-10');
+  n := import_bank_items(jsonb_build_array(jsonb_build_object('external_id','q1','action','quitar',
+        'transaction_id',(select id from transactions where description='Luz pendente'),'paid_date','2026-11-09','account_id',acc)));
+  assert n = 1;
+  select count(*) into n from transactions where description='Luz pendente' and paid_date='2026-11-09' and account_id=acc; assert n = 1, 'não quitou';
+  select count(*) into n from bank_imports where external_id='q1' and transaction_id is not null; assert n = 1;
+  begin
+    perform import_bank_items(jsonb_build_array(jsonb_build_object('external_id','q2','action','quitar',
+        'transaction_id',(select id from transactions where description='Luz pendente'),'paid_date','2026-11-09','account_id',acc)));
+    assert false, 'quitou duas vezes';
+  exception when raise_exception then null; end;
   -- excluir o lançamento importado não faz ele voltar (o registro fica)
   delete from transactions where description = 'Mercado';
   select count(*) into n from bank_imports where external_id='t1' and transaction_id is null; assert n = 1;
@@ -66,6 +78,11 @@ begin
       jsonb_build_object('kind','despesa','description','x','amount',1,'due_date','2026-11-01','paid_date','2026-11-01','account_id',a_acc))));
     assert false, 'D lançou na conta de C';
   exception when foreign_key_violation then null; end;
+  begin
+    perform import_bank_items(jsonb_build_array(jsonb_build_object('external_id','z2','action','quitar',
+      'transaction_id',(select id from transactions where description='Luz pendente' limit 1),'paid_date','2026-11-09')));
+    assert false, 'D quitou lançamento de C';
+  exception when raise_exception then null; end;
   raise notice 'isolamento das conexões ok';
 end $$;
 reset role; set role anon;

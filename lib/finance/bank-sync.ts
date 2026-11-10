@@ -106,7 +106,7 @@ export function importable(t: BankTx, kind: "conta" | "cartao"): boolean {
 
 // ------------------------------------------------------------------ sugestões
 
-export type Acao = "despesa" | "receita" | "transferencia" | "fatura" | "compra" | "ignorar";
+export type Acao = "despesa" | "receita" | "transferencia" | "fatura" | "compra" | "quitar" | "ignorar";
 
 export interface Mapeamento {
   external_id: string;
@@ -125,6 +125,8 @@ export interface Sugestao {
   to_account_id: string | null;
   card_id: string | null;
   invoice_month: ISODate | null;
+  /** lançamento pendente do app que este pagamento do banco quita (ação "quitar") */
+  match_id: string | null;
   /** por que a sugestão é essa (aparece na revisão) */
   motivo: string | null;
 }
@@ -231,7 +233,7 @@ export function sugerir(itens: BankTx[], mapas: Mapeamento[], data: FinanceData)
   for (const t of ordenados) {
     const map = porConta.get(t.accountId);
     if (!map) continue;
-    const s: Sugestao = { tx: t, map, acao: "ignorar", description: t.description, category_id: null, to_account_id: null, card_id: null, invoice_month: null, motivo: null };
+    const s: Sugestao = { tx: t, map, acao: "ignorar", description: t.description, category_id: null, to_account_id: null, card_id: null, invoice_month: null, match_id: null, motivo: null };
 
     if (map.kind === "cartao") {
       s.card_id = map.card_id;
@@ -304,15 +306,23 @@ export function sugerir(itens: BankTx[], mapas: Mapeamento[], data: FinanceData)
         !usados.has(x.id) &&
         x.kind === kindApp &&
         x.amount === t.amount &&
-        (x.account_id === map.account_id || (!x.paid_date && !x.account_id)) &&
+        (x.account_id === map.account_id || !x.paid_date) &&
         (kindApp !== "fatura" || x.card_id === s.card_id) &&
         (kindApp !== "transferencia" || x.to_account_id === s.to_account_id) &&
         Math.abs(diffDays(x.paid_date ?? x.due_date, t.date)) <= 3,
     );
     if (dup) {
       usados.add(dup.id);
-      s.acao = "ignorar";
-      s.motivo = dup.paid_date ? `Parece já lançado: ${dup.description}` : `Parece ser "${dup.description}" (pendente no app): quite por lá`;
+      if (!dup.paid_date && map.account_id) {
+        // já pago no banco e ainda pendente no app: quita o lançamento que existe, sem criar outro
+        s.acao = "quitar";
+        s.match_id = dup.id;
+        s.category_id = null;
+        s.motivo = `Já ${t.direction === "entrada" ? "recebido" : "pago"} no banco: marca "${dup.description}" como ${t.direction === "entrada" ? "recebida" : "paga"} no app`;
+      } else {
+        s.acao = "ignorar";
+        s.motivo = `Parece já lançado: ${dup.description}`;
+      }
     }
     out.push(s);
   }
@@ -325,8 +335,11 @@ export function sugerir(itens: BankTx[], mapas: Mapeamento[], data: FinanceData)
 
 export interface ItemImportacao {
   external_id: string;
-  action: "transacao" | "compra" | "ignorar";
+  action: "transacao" | "compra" | "quitar" | "ignorar";
   tx?: Record<string, unknown>;
+  transaction_id?: string;
+  paid_date?: ISODate;
+  account_id?: string;
   purchase?: Record<string, unknown>;
 }
 
@@ -341,6 +354,10 @@ export function montarImportacao(sugs: Sugestao[], data: FinanceData): ItemImpor
     switch (s.acao) {
       case "ignorar":
         return { external_id: t.id, action: "ignorar" };
+      case "quitar":
+        if (!s.match_id) throw erro("escolha o lançamento do app que foi pago");
+        if (!s.map.account_id) throw erro("escolha a conta do app");
+        return { external_id: t.id, action: "quitar", transaction_id: s.match_id, paid_date: t.date, account_id: s.map.account_id };
       case "compra": {
         const card = s.card_id ? cards.get(s.card_id) : null;
         if (!card) throw erro("escolha o cartão do app");

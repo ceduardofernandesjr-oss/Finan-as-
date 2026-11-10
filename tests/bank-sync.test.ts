@@ -90,8 +90,8 @@ describe("Pluggy: sugestões", () => {
   const s = new Map(sugerir(itens, mapas, data).map((x) => [x.tx.id, x]));
   it("o que já foi lançado à mão começa ignorado, com o motivo", () => {
     expect(s.get("1")).toMatchObject({ acao: "ignorar", motivo: "Parece já lançado: Mercado X" });
-    expect(s.get("2")!.acao).toBe("ignorar");
-    expect(s.get("2")!.motivo).toMatch(/Conta de luz.*quite por lá/);
+    expect(s.get("2")).toMatchObject({ acao: "quitar", match_id: "t2", category_id: null });
+    expect(s.get("2")!.motivo).toMatch(/Já pago no banco: marca "Conta de luz" como paga/);
     expect(s.get("7")).toMatchObject({ acao: "ignorar", motivo: "Parece já lançada: Tênis" });
   });
   it("receitas e despesas com categoria sugerida", () => {
@@ -147,6 +147,10 @@ describe("Pluggy: lote de importação", () => {
     const lote = montarImportacao([{ ...e, acao: "transferencia", to_account_id: "a2", category_id: null }], data);
     expect(lote[0].tx).toMatchObject({ kind: "transferencia", account_id: "a2", to_account_id: "a1" });
     expect(() => montarImportacao([{ ...e, acao: "despesa" }], data)).toThrow(/entrada não pode ser despesa/);
+  });
+  it("conta pendente no app já paga no banco é quitada, sem criar outra", () => {
+    const [q] = sugerir([b({ id: "q", description: "ENEL", amount: 18900, date: "2026-11-09" })], mapas, data);
+    expect(montarImportacao([q], data)[0]).toEqual({ external_id: "q", action: "quitar", transaction_id: "t2", paid_date: "2026-11-09", account_id: "a1" });
   });
   it("recusa linha sem conta do app", () => {
     const sem = sugs.map((x) => (x.tx.id === "r" ? { ...x, map: { ...x.map, account_id: null } } : x));
