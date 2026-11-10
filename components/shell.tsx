@@ -129,6 +129,8 @@ export function Shell({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase().auth.signOut();
+    // apaga as telas guardadas no aparelho (abrem rápido, mas não depois de sair)
+    try { if ("caches" in window) await caches.delete("financas-paginas-v1"); } catch { /* sem cache */ }
     router.replace("/entrar");
     router.refresh();
   };

@@ -155,6 +155,12 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     (async () => {
+      // a tela pode ter aberto da cópia guardada no aparelho: sem sessão, volta para o login
+      const { data: { session } } = await supabase().auth.getSession();
+      if (!session) {
+        window.location.replace("/entrar");
+        return;
+      }
       // garante as categorias padrão (quem se cadastrou antes de o banco existir)
       await supabase().rpc("ensure_defaults");
       await reload();
