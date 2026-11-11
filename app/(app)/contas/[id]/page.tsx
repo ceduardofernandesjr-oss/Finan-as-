@@ -96,7 +96,7 @@ export default function AccountDetail() {
         {shown.length ? (
           <ul className="divide-y divide-slate-100 dark:divide-navy-800">
             {shown.map((r) => (
-              <TxRow key={r.tx.id} tx={r.tx} footer={<span className="text-[11px] text-slate-400">saldo: <Money value={r.balance} /></span>} />
+              <TxRow key={r.tx.id} tx={r.tx} footer={<span className="text-xs text-slate-400">saldo: <Money value={r.balance} /></span>} />
             ))}
           </ul>
         ) : (

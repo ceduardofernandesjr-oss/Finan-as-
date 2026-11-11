@@ -2,10 +2,10 @@
 // Tela Início: leitura rápida, de cima para baixo — saldo, patrimônio e previsão, receitas e despesas,
 // gráficos (em abas), contas e últimas movimentações. Todos os números vêm de lib/finance (testados).
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  AlertTriangle, ArrowDownCircle, ArrowDownRight, ArrowUpCircle, ArrowUpRight, CalendarClock, ChevronDown, ChevronRight, CreditCard,
-  Eye, EyeOff, Landmark, PiggyBank, TrendingUp, Wallet,
+  AlertTriangle, ArrowDownCircle, ArrowDownLeft, ArrowDownRight, ArrowUpCircle, ArrowUpRight, CalendarClock, ChevronDown, ChevronRight, CreditCard,
+  Eye, EyeOff, Landmark, Wallet,
 } from "lucide-react";
 import { useFinance } from "@/lib/store";
 import { addDays, addMonths, formatBR, monthEnd, monthKey, monthLabel, monthRange, monthStart, parts, periodRange } from "@/lib/finance/dates";
@@ -15,10 +15,10 @@ import { allInvoices, budgetStatus, byCategory, cashFlow, entriesIn, netWorthSer
 import { balanceSummary, dueSoon, forecastBalance, pendingSummary, periodSummary, type DueItem } from "@/lib/finance/dashboard";
 import { analyze } from "@/lib/finance/insights";
 import { formatMoney, sum } from "@/lib/finance/money";
-import { ACCOUNT_TYPE_LABEL, type AccountType } from "@/lib/types";
+import { ACCOUNT_TYPE_LABEL } from "@/lib/types";
 import { PeriodBar, usePeriod } from "@/components/tx-list";
 import { Badge, Button, EmptyState, Money, Progress, Segmented, Skeleton, cx } from "@/components/ui";
-import { AreaMoneyChart, C, CashFlowChart, CategoryDonut, HorizontalBars, IncomeExpenseChart, LineMoneyChart } from "@/components/charts";
+import { AreaMoneyChart, C, CashFlowChart, CategoryDonut, FluxoChart, HorizontalBars, LineMoneyChart } from "@/components/charts";
 import { CategoryIcon } from "@/components/category-icon";
 import { useForms } from "@/components/forms/provider";
 import { InsightCard } from "@/components/insight-card";
@@ -43,7 +43,7 @@ function IconTile({ icon: Icon, tone, className }: { icon: typeof Wallet; tone: 
 /** Superfície única do painel: cinza-escuro, sem borda no escuro (sem cartão dentro de cartão). */
 function Superficie({ children, className, label }: { children: React.ReactNode; className?: string; label?: string }) {
   return (
-    <section aria-label={label} className={cx("rounded-[22px] bg-white p-4 shadow-[0_1px_2px_rgb(8_10_8/0.04)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-none dark:ring-0", className)}>
+    <section aria-label={label} className={cx("rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70", className)}>
       {children}
     </section>
   );
@@ -53,8 +53,8 @@ function Titulo({ children, acao, sub }: { children: React.ReactNode; acao?: Rea
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <h2 className="text-[15px] font-semibold tracking-tight">{children}</h2>
-        {sub && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
+        <h2 className="text-[19px] font-semibold leading-tight tracking-tight">{children}</h2>
+        {sub && <p className="mt-1 text-[13px] text-slate-500 dark:text-slate-400">{sub}</p>}
       </div>
       {acao}
     </div>
@@ -63,7 +63,7 @@ function Titulo({ children, acao, sub }: { children: React.ReactNode; acao?: Rea
 
 function LinkSecao({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="flex shrink-0 items-center gap-0.5 rounded-lg px-1.5 py-1 text-xs font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+    <Link href={href} className="-mr-1.5 flex min-h-9 shrink-0 items-center gap-0.5 rounded-lg px-1.5 text-[13px] font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
       {children} <ChevronRight className="size-3.5" />
     </Link>
   );
@@ -78,14 +78,14 @@ function pctTexto(p: number): string {
 /** Variação percentual com cor pelo sentido bom/ruim. Sem base anterior, diz isso em vez de inventar um número. */
 function Variacao({ pct, atual, melhorSubir, vs }: { pct: number | null; atual: number; melhorSubir: boolean; vs: string }) {
   if (pct === null) {
-    return atual ? <span className="text-[11px] text-slate-500 dark:text-slate-400">sem lançamentos em {vs}</span> : null;
+    return atual ? <span className="text-xs text-slate-500 dark:text-slate-400">sem lançamentos em {vs}</span> : null;
   }
-  if (Math.abs(pct) < 0.5) return <span className="text-[11px] text-slate-500 dark:text-slate-400">igual a {vs}</span>;
+  if (Math.abs(pct) < 0.5) return <span className="text-xs text-slate-500 dark:text-slate-400">igual a {vs}</span>;
   const sobe = pct > 0;
   const bom = sobe === melhorSubir;
   const Icon = sobe ? ArrowUpRight : ArrowDownRight;
   return (
-    <span className="inline-flex flex-wrap items-center gap-1 text-[11px]">
+    <span className="inline-flex flex-wrap items-center gap-1 text-xs">
       <span
         className={cx(
           "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-semibold",
@@ -103,11 +103,11 @@ function Variacao({ pct, atual, melhorSubir, vs }: { pct: number | null; atual: 
 
 function VariacaoValor({ diff, vs, temBase }: { diff: number; vs: string; temBase: boolean }) {
   if (!temBase) return null;
-  if (!diff) return <span className="text-[11px] text-slate-500 dark:text-slate-400">igual a {vs}</span>;
+  if (!diff) return <span className="text-xs text-slate-500 dark:text-slate-400">igual a {vs}</span>;
   const bom = diff > 0;
   const Icon = bom ? ArrowUpRight : ArrowDownRight;
   return (
-    <span className="inline-flex flex-wrap items-center gap-1 text-[11px]">
+    <span className="inline-flex flex-wrap items-center gap-1 text-xs">
       <span
         className={cx(
           "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-semibold",
@@ -157,7 +157,7 @@ function Previsao({
       <dl className="grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-4">
         {numeros.map((n) => (
           <div key={n.label} className="min-w-0">
-            <dt className="text-[11px] text-slate-500 dark:text-slate-400">{n.label}</dt>
+            <dt className="text-xs text-slate-500 dark:text-slate-400">{n.label}</dt>
             <dd className={cx("money text-base font-semibold", n.cls)}>{n.value}</dd>
           </div>
         ))}
@@ -239,7 +239,7 @@ function Vencimentos({ due, forms }: { due: ReturnType<typeof dueSoon>; forms: R
       </div>
       {atrasados.length > 0 && (
         <section>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wide text-rose-600 dark:text-rose-400">Em atraso</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-rose-600 dark:text-rose-400">Em atraso</h3>
           <ul className="divide-y divide-slate-100 dark:divide-navy-800">
             {atrasados.map((c) => <LinhaVencimento key={c.id} c={c} forms={forms} />)}
           </ul>
@@ -252,7 +252,7 @@ function Vencimentos({ due, forms }: { due: ReturnType<typeof dueSoon>; forms: R
       )}
       {proximos.length > 0 && (
         <section>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Próximos 7 dias</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Próximos 7 dias</h3>
           <ul className="divide-y divide-slate-100 dark:divide-navy-800">
             {proximos.map((c) => <LinhaVencimento key={c.id} c={c} forms={forms} />)}
           </ul>
@@ -262,50 +262,127 @@ function Vencimentos({ due, forms }: { due: ReturnType<typeof dueSoon>; forms: R
   );
 }
 
-/** Cartão compacto do saldo disponível (com olho para ocultar). */
+/** Transição suave de valores (quando o saldo muda ou carrega). Respeita "reduzir movimento". */
+function useValorAnimado(alvo: number): number {
+  const [v, setV] = useState(alvo);
+  const de = useRef(alvo);
+  useEffect(() => {
+    const ini = de.current;
+    if (ini === alvo || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      de.current = alvo;
+      setV(alvo);
+      return;
+    }
+    const t0 = performance.now();
+    let raf = 0;
+    const passo = (t: number) => {
+      const k = Math.min(1, (t - t0) / 600);
+      const e = 1 - Math.pow(1 - k, 3);
+      const atual = Math.round(ini + (alvo - ini) * e);
+      setV(atual);
+      de.current = atual;
+      if (k < 1) raf = requestAnimationFrame(passo);
+    };
+    raf = requestAnimationFrame(passo);
+    return () => cancelAnimationFrame(raf);
+  }, [alvo]);
+  return v;
+}
+
+/** Componente principal: saldo disponível, com olho para ocultar e acesso às contas. */
 function Saldo({ s, ocultar }: { s: ReturnType<typeof balanceSummary>; ocultar: ReturnType<typeof useOcultarSaldo> }) {
   const { oculto, alternar, valor } = ocultar;
+  const animado = useValorAnimado(s.disponivel);
   return (
-    <section aria-label="Saldo disponível" className="rounded-[22px] bg-navy-950 px-5 py-4 text-white ring-1 ring-white/[0.06] dark:bg-navy-900 dark:ring-0">
+    <section aria-label="Saldo disponível" className="relative overflow-hidden rounded-[var(--radius-card)] bg-navy-950 px-5 pb-4 pt-4 text-slate-50 shadow-[var(--shadow-card-dark)] ring-1 ring-line dark:bg-navy-900 sm:px-6 sm:pt-5">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-transparent" />
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[13px] font-medium text-slate-400">Saldo disponível</p>
+        <p className="flex items-center gap-2 text-[13px] font-medium text-slate-400">
+          <Wallet className="size-4 text-brand-400" strokeWidth={2.2} />
+          Saldo disponível
+        </p>
         <button
           type="button"
           onClick={alternar}
           aria-label={oculto ? "Mostrar saldo" : "Ocultar saldo"}
           aria-pressed={oculto}
           title={oculto ? "Mostrar saldo" : "Ocultar saldo"}
-          className="-mr-2 flex size-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white active:scale-90 focus-visible:outline-2 focus-visible:outline-brand-400"
+          className="-mr-2 flex size-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white active:scale-90 focus-visible:outline-2 focus-visible:outline-brand-400"
         >
           {oculto ? <EyeOff className="size-[18px]" /> : <Eye className="size-[18px]" />}
         </button>
       </div>
-      <p className={cx("money mt-0.5 text-[32px] font-semibold leading-tight tracking-tight sm:text-[38px]", !oculto && s.disponivel < 0 && "text-rose-300")} aria-live="polite">
-        {valor(s.disponivel)}
+      <p className={cx("money mt-1 text-[36px] font-bold leading-[1.1] tracking-tight sm:text-[42px]", !oculto && s.disponivel < 0 && "text-rose-300")} aria-live="polite">
+        {oculto ? valor(s.disponivel) : formatMoney(animado)}
       </p>
-      <p className="mt-1 text-xs text-slate-400">
-        {s.temInvestimentos ? (
-          <>
-            Consolidado <span className="money font-medium text-slate-200">{valor(s.consolidado)}</span> · inclui {valor(s.investido)} investidos
-          </>
-        ) : (
-          `Em ${s.contas.length} ${s.contas.length === 1 ? "conta ativa" : "contas ativas"}, hoje`
-        )}
-      </p>
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <p className="min-w-0 text-[13px] text-slate-400">
+          {s.temInvestimentos ? (
+            <>
+              Consolidado <span className="money font-medium text-slate-200">{valor(s.consolidado)}</span> · inclui {valor(s.investido)} investidos
+            </>
+          ) : (
+            `Em ${s.contas.length} ${s.contas.length === 1 ? "conta ativa" : "contas ativas"}, hoje`
+          )}
+        </p>
+        <Link href="/contas" className="flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-white/[0.07] px-3 text-[13px] font-medium text-slate-100 transition hover:bg-white/[0.12] active:scale-95">
+          Contas <ChevronRight className="size-3.5" />
+        </Link>
+      </div>
     </section>
   );
 }
 
-/** Indicador compacto (patrimônio, previsão). */
-function Indicador({ label, valor, negativo, hint, href, destaque }: { label: string; valor: string; negativo: boolean; hint: string; href?: string; destaque?: boolean }) {
+/** Metade do bloco de indicadores (patrimônio líquido / fechamento previsto). */
+function Indicador({ label, valor, negativo, hint, href }: { label: string; valor: string; negativo: boolean; hint: string; href?: string }) {
   const corpo = (
-    <div className="h-full rounded-[20px] bg-white p-3.5 ring-1 ring-slate-200/70 transition dark:bg-navy-900 dark:ring-0 dark:hover:bg-navy-800/70">
-      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
-      <p className={cx("money mt-1 text-lg font-semibold tracking-tight", negativo ? "text-rose-600 dark:text-rose-400" : destaque ? "text-brand-700 dark:text-brand-400" : "")}>{valor}</p>
-      <p className="mt-0.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400">{hint}</p>
+    <div className="h-full min-w-0 px-4 py-3.5 sm:px-5">
+      <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      <p className={cx("money mt-1 text-[19px] font-bold tracking-tight", negativo && "text-rose-600 dark:text-rose-400")}>{valor}</p>
+      <p className="mt-0.5 text-xs leading-snug text-slate-500 dark:text-slate-400">{hint}</p>
     </div>
   );
-  return href ? <Link href={href} className="block h-full rounded-[20px] focus-visible:outline-2 focus-visible:outline-brand-400">{corpo}</Link> : corpo;
+  return href ? <Link href={href} className="block h-full transition hover:bg-slate-50 dark:hover:bg-white/[0.02]">{corpo}</Link> : corpo;
+}
+
+/** Card de receitas ou despesas: ícone de entrada/saída, total e comparação com o período anterior. */
+function CardFluxo({ tipo, valor, pct, vs, realizado, href }: { tipo: "receita" | "despesa"; valor: number; pct: number | null; vs: string; realizado: number; href: string }) {
+  const entrada = tipo === "receita";
+  const Icone = entrada ? ArrowDownLeft : ArrowUpRight;
+  return (
+    <Link href={href} aria-label={entrada ? "Receitas" : "Despesas"} className="group block min-w-0 rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 transition active:scale-[0.98] dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70 dark:hover:bg-[#181d17]">
+      <div className="flex items-center gap-2">
+        <span className={cx("flex size-8 items-center justify-center rounded-xl", entrada ? "bg-brand-50 text-brand-700 dark:bg-brand-400/12 dark:text-brand-400" : "bg-rose-50 text-rose-600 dark:bg-rose-400/12 dark:text-rose-400")}>
+          <Icone className="size-[18px]" strokeWidth={2.3} />
+        </span>
+        <span className="text-[13px] font-medium text-slate-500 dark:text-slate-400">{entrada ? "Receitas" : "Despesas"}</span>
+      </div>
+      <Money value={valor} className="mt-2.5 block text-[21px] font-bold tracking-tight" />
+      <div className="mt-1 min-h-5"><Variacao pct={pct} atual={valor} melhorSubir={entrada} vs={vs} /></div>
+      {valor > 0 && (
+        <div className="mt-2.5">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/[0.06]">
+            <div className={cx("h-full rounded-full transition-[width] duration-700", entrada ? "bg-brand-500 dark:bg-brand-400" : "bg-rose-500 dark:bg-rose-400")} style={{ width: `${Math.min(100, (realizado / valor) * 100)}%` }} />
+          </div>
+          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400"><Money value={realizado} /> {entrada ? "recebido" : "pago ou no cartão"}</p>
+        </div>
+      )}
+    </Link>
+  );
+}
+
+/** Identificação visual da conta: iniciais na cor da conta. */
+function AvatarConta({ nome, cor }: { nome: string; cor: string }) {
+  const ini = nome.replace(/[^\p{L}\p{N} ]/gu, " ").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
+  const h = cor.replace("#", "");
+  const hex = /^[0-9a-f]{6}$/i.test(h) ? h : /^[0-9a-f]{3}$/i.test(h) ? h.split("").map((c) => c + c).join("") : "70766d";
+  const [r, g, b] = [0, 2, 4].map((k) => parseInt(hex.slice(k, k + 2), 16));
+  const claro = 0.299 * r + 0.587 * g + 0.114 * b > 150;
+  return (
+    <span aria-hidden className={cx("flex size-10 shrink-0 items-center justify-center rounded-[12px] text-[13px] font-bold", claro ? "text-navy-950" : "text-white")} style={{ background: `#${hex}` }}>
+      {ini}
+    </span>
+  );
 }
 
 /** Linha da lista "mais indicadores". */
@@ -316,7 +393,7 @@ function LinhaIndicador({ label, value, sub, href, tone = "navy", icon }: { labe
         <IconTile icon={icon} tone={tone} />
         <div className="min-w-0 flex-1">
           <p className="text-sm">{label}</p>
-          {sub && <p className="text-[11px] text-slate-500 dark:text-slate-400">{sub}</p>}
+          {sub && <p className="text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
         </div>
         <Money value={value} className="text-sm font-semibold" />
       </Link>
@@ -324,11 +401,8 @@ function LinhaIndicador({ label, value, sub, href, tone = "navy", icon }: { labe
   );
 }
 
-const ICONE_CONTA: Record<AccountType, typeof Wallet> = {
-  corrente: Landmark, poupanca: PiggyBank, carteira: Wallet, dinheiro: Wallet, investimento: TrendingUp,
-};
 
-type Aba = "mensal" | "previsao" | "categorias" | "patrimonio" | "caixa" | "evolucao" | "comparativo";
+type Aba = "fluxo" | "previsao" | "categorias" | "patrimonio" | "caixa" | "evolucao" | "comparativo";
 
 export default function Dashboard() {
   const { data, entries, today, loading } = useFinance();
@@ -338,7 +412,8 @@ export default function Dashboard() {
   const { from, to } = p.range;
   const [maisIndicadores, setMaisIndicadores] = useState(false);
   const [vencAberto, setVencAberto] = useState(false);
-  const [aba, setAba] = useState<Aba>("mensal");
+  const [aba, setAba] = useState<Aba>("fluxo");
+  const [todasContas, setTodasContas] = useState(false);
 
   // todos os números do painel, recalculados só quando os dados, o dia ou o período mudam
   const v = useMemo(() => {
@@ -415,7 +490,7 @@ export default function Dashboard() {
   const tituloPeriodo = p.period === "mes" ? p.title.toLowerCase() : p.period === "semana" ? `a semana (${p.title})` : p.period === "trimestre" ? `o ${p.title}` : p.title;
 
   const abas: { value: Aba; label: string; sub: string }[] = [
-    { value: "mensal", label: "Receitas × despesas", sub: p.period === "ano" ? "Por mês do ano" : "Últimos 6 meses, por mês" },
+    { value: "fluxo", label: "Fluxo", sub: p.period === "ano" ? "Receitas, despesas e saldo líquido por mês do ano" : "Receitas, despesas e saldo líquido dos últimos 6 meses" },
     { value: "previsao", label: "Previsão", sub: `Saldo disponível de hoje até ${ate} com contas, recebimentos e faturas pendentes` },
     { value: "categorias", label: "Categorias", sub: `Gastos de ${tituloPeriodo} · compras no cartão incluídas` },
     { value: "patrimonio", label: "Patrimônio", sub: "Últimos 12 meses: contas − cartões − empréstimos" },
@@ -451,13 +526,13 @@ export default function Dashboard() {
         </section>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)] lg:gap-6">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)] lg:gap-6">
         {/* coluna principal */}
-        <div className="stagger min-w-0 space-y-4">
+        <div className="stagger min-w-0 space-y-5 lg:space-y-6">
           {!empty && <Saldo s={s} ocultar={ocultar} />}
 
           {!empty && (
-            <div className="grid grid-cols-2 gap-3">
+            <section aria-label="Indicadores" className="grid grid-cols-2 divide-x divide-slate-100 overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 dark:divide-line dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70">
               <Indicador
                 label="Patrimônio líquido"
                 valor={valor(s.patrimonio)}
@@ -470,51 +545,32 @@ export default function Dashboard() {
               ) : (
                 <Indicador label="Fechamento previsto" valor="—" negativo={false} hint="cadastre uma conta" />
               )}
-            </div>
+            </section>
           )}
 
           {/* receitas e despesas do período */}
-          <Superficie label="Receitas e despesas">
-            <Titulo sub="Inclui o que ainda está previsto">Receitas e despesas</Titulo>
-            <div className="grid grid-cols-2 gap-4">
-              <Link href="/receitas" aria-label="Receitas" className="min-w-0 rounded-xl">
-                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span className="size-2 rounded-full bg-brand-500 dark:bg-brand-400" />Receitas
-                </p>
-                <Money value={t.receitas} className="mt-1 block text-xl font-semibold tracking-tight" />
-                <div className="mt-1 min-h-5"><Variacao pct={resumo.variacao.receitas} atual={t.receitas} melhorSubir vs={vs} /></div>
-                {t.receitas > 0 && (
-                  <div className="mt-2">
-                    <Progress value={(t.recebido / t.receitas) * 100} tone="navy" />
-                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400"><Money value={t.recebido} /> recebido</p>
-                  </div>
-                )}
-              </Link>
-              <Link href="/despesas" aria-label="Despesas" className="min-w-0 rounded-xl">
-                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span className="size-2 rounded-full bg-rose-500 dark:bg-rose-400" />Despesas
-                </p>
-                <Money value={t.despesas} className="mt-1 block text-xl font-semibold tracking-tight" />
-                <div className="mt-1 min-h-5"><Variacao pct={resumo.variacao.despesas} atual={t.despesas} melhorSubir={false} vs={vs} /></div>
-                {t.despesas > 0 && (
-                  <div className="mt-2">
-                    <Progress value={(t.pago / t.despesas) * 100} tone="navy" />
-                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400"><Money value={t.pago} /> pago ou no cartão</p>
-                  </div>
-                )}
-              </Link>
+          <div>
+            <div className="mb-2.5 flex items-baseline justify-between gap-2 px-1">
+              <h2 className="text-[19px] font-semibold tracking-tight">Resumo do período</h2>
+              <span className="text-xs text-slate-500 dark:text-slate-400">inclui previstos</span>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <CardFluxo tipo="receita" valor={t.receitas} pct={resumo.variacao.receitas} vs={vs} realizado={t.recebido} href="/receitas" />
+              <CardFluxo tipo="despesa" valor={t.despesas} pct={resumo.variacao.despesas} vs={vs} realizado={t.pago} href="/despesas" />
+            </div>
+          </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 pt-3 dark:border-white/[0.06]">
+          <Superficie label="Resultado e pendências" className="!pt-4">
+            <div className="grid grid-cols-2 gap-4">
               <Link href="/relatorios" aria-label="Resultado" className="min-w-0 rounded-xl">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Resultado</p>
-                <Money value={t.saldo} signed colored className="mt-0.5 block text-base font-semibold" />
+                <p className="text-[13px] text-slate-500 dark:text-slate-400">Resultado</p>
+                <Money value={t.saldo} signed colored className="mt-0.5 block text-[17px] font-bold" />
                 <div className="mt-0.5"><VariacaoValor diff={resumo.variacao.resultado} vs={vs} temBase={!!(resumo.anterior.receitas || resumo.anterior.despesas)} /></div>
               </Link>
               <Link href="/a-receber" aria-label="A receber" className="min-w-0 rounded-xl">
-                <p className="text-xs text-slate-500 dark:text-slate-400">A receber</p>
-                <Money value={v.receber.total} className="mt-0.5 block text-base font-semibold" />
-                <p className="mt-0.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400">
+                <p className="text-[13px] text-slate-500 dark:text-slate-400">A receber</p>
+                <Money value={v.receber.total} className="mt-0.5 block text-[17px] font-bold" />
+                <p className="mt-0.5 text-xs leading-snug text-slate-500 dark:text-slate-400">
                   {v.receber.quantidade ? `${v.receber.quantidade} ${v.receber.quantidade === 1 ? "pendente" : "pendentes"}` : "nada pendente"}
                   {v.receber.emAtraso > 0 && <span className="block text-rose-600 dark:text-rose-400"><Money value={v.receber.emAtraso} /> já venceu</span>}
                   {v.receber.atrasadoAntes > 0 && <span className="block text-amber-700 dark:text-amber-300">+ <Money value={v.receber.atrasadoAntes} /> em atraso de antes</span>}
@@ -526,7 +582,7 @@ export default function Dashboard() {
               type="button"
               onClick={() => setMaisIndicadores((x) => !x)}
               aria-expanded={maisIndicadores}
-              className="-mb-1 mt-3 flex w-full items-center justify-center gap-1 rounded-xl py-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className="-mb-1 mt-3 flex min-h-10 w-full items-center justify-center gap-1 rounded-xl border-t border-slate-100 pt-2 text-[13px] font-medium dark:border-line text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             >
               {maisIndicadores ? "Menos indicadores" : "Mais indicadores"}
               <ChevronDown className={cx("size-3.5 transition-transform", maisIndicadores && "rotate-180")} />
@@ -571,7 +627,7 @@ export default function Dashboard() {
           <Superficie label="Fluxo financeiro">
             <Titulo sub={abaAtual.sub}>Fluxo financeiro</Titulo>
             <Segmented value={aba} onChange={setAba} options={abas.map((a) => ({ value: a.value, label: a.label }))} className="mb-4 w-full !rounded-xl" sutil />
-            {aba === "mensal" && (v.monthly.some((m) => m.receitas || m.despesas) ? <IncomeExpenseChart data={v.monthly} /> : <EmptyState title="Sem lançamentos nesses meses" />)}
+            {aba === "fluxo" && (v.monthly.some((m) => m.receitas || m.despesas) ? <FluxoChart data={v.monthly} /> : <EmptyState title="Sem lançamentos nesses meses" />)}
             {aba === "previsao" && (v.previsao ? <Previsao f={v.previsao} ate={ate} ocultar={ocultar} /> : <EmptyState title="Cadastre suas contas para ver a previsão" />)}
             {aba === "categorias" && (v.cats.length ? <CategoryDonut data={v.cats} /> : <EmptyState title="Nenhuma despesa no período" />)}
             {aba === "patrimonio" && (
@@ -584,30 +640,35 @@ export default function Dashboard() {
         </div>
 
         {/* coluna lateral (no celular, continua abaixo) */}
-        <div className="stagger min-w-0 space-y-4">
+        <div className="stagger min-w-0 space-y-5 lg:space-y-6">
           <Superficie label="Contas">
             <Titulo acao={<LinkSecao href="/contas">Gerenciar</LinkSecao>}>Contas</Titulo>
             {s.contas.length ? (
+              <>
               <ul className="-my-1 divide-y divide-slate-100 dark:divide-white/[0.05]">
-                {s.contas.map((a) => {
-                  const Icone = ICONE_CONTA[a.type] ?? Wallet;
+                {(todasContas ? s.contas : s.contas.slice(0, 3)).map((a) => {
                   return (
                     <li key={a.id}>
                       <Link href={`/contas/${a.id}`} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-white/[0.03]">
-                        <span className="relative flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/[0.05] dark:text-slate-300">
-                          <Icone className="size-4" strokeWidth={2} />
-                          <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full ring-2 ring-white dark:ring-navy-900" style={{ background: a.color }} />
-                        </span>
+                        <AvatarConta nome={a.name} cor={a.color} />
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{a.name}</p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400">{ACCOUNT_TYPE_LABEL[a.type]}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{ACCOUNT_TYPE_LABEL[a.type]}</p>
                         </div>
-                        <span className={cx("money shrink-0 text-sm font-semibold", !oculto && a.saldo < 0 && "text-rose-600 dark:text-rose-400")}>{valor(a.saldo)}</span>
+                        <span className={cx("money shrink-0 text-[15px] font-semibold", !oculto && a.saldo < 0 && "text-rose-600 dark:text-rose-400")}>{valor(a.saldo)}</span>
+                        <ChevronRight className="size-4 shrink-0 text-slate-400" />
                       </Link>
                     </li>
                   );
                 })}
               </ul>
+              {s.contas.length > 3 && (
+                <button type="button" onClick={() => setTodasContas((x) => !x)} aria-expanded={todasContas} className="mt-1 flex min-h-10 w-full items-center justify-center gap-1 rounded-xl border-t border-slate-100 pt-2 text-[13px] font-medium text-slate-500 transition hover:text-slate-900 dark:border-line dark:text-slate-400 dark:hover:text-white">
+                  {todasContas ? "Mostrar menos" : `Ver todas as contas (${s.contas.length})`}
+                  <ChevronDown className={cx("size-3.5 transition-transform", todasContas && "rotate-180")} />
+                </button>
+              )}
+              </>
             ) : (
               <div className="py-2 text-center">
                 <p className="text-sm text-slate-500 dark:text-slate-400">Nenhuma conta cadastrada.</p>
@@ -624,10 +685,15 @@ export default function Dashboard() {
                   const cat = e.category_id ? catPorId.get(e.category_id) : null;
                   return (
                     <li key={`${e.source}-${e.id}`} className="flex items-center gap-3 py-2.5">
-                      <CategoryIcon category={cat} kind={e.type} />
+                      <span className="relative shrink-0">
+                        <CategoryIcon category={cat} kind={e.type} />
+                        <span aria-label={e.type === "receita" ? "entrada" : "saída"} className={cx("absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full ring-2 ring-white dark:ring-navy-900", e.type === "receita" ? "bg-brand-400 text-navy-950" : "bg-rose-400 text-navy-950")}>
+                          {e.type === "receita" ? <ArrowDownLeft className="size-2.5" strokeWidth={3} /> : <ArrowUpRight className="size-2.5" strokeWidth={3} />}
+                        </span>
+                      </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{e.description}</p>
-                        <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                        <p className="truncate text-[15px] font-medium">{e.description}</p>
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                           {formatBR(e.date).slice(0, 5)} · {cat?.name ?? "Sem categoria"}{e.source === "cartao" ? " · cartão" : ""}
                         </p>
                       </div>

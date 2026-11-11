@@ -67,19 +67,19 @@ export function CommitmentsPage({ kind }: { kind: "receita" | "despesa" }) {
           <Card className={cx("p-4 sm:p-4", overdue.length && "ring-rose-200 dark:ring-rose-900")}>
             <p className="flex items-center gap-1.5 text-xs text-slate-500"><AlertTriangle className="size-3.5 text-rose-500" />Atrasadas</p>
             <Money value={sum(overdue.map((c) => c.amount))} className="text-lg font-semibold text-rose-600" />
-            <p className="text-[11px] text-slate-500">{overdue.length} {overdue.length === 1 ? "conta" : "contas"}</p>
+            <p className="text-xs text-slate-500">{overdue.length} {overdue.length === 1 ? "conta" : "contas"}</p>
           </Card>
         </button>
         <Card className="p-4 sm:p-4">
           <p className="text-xs text-slate-500">Vencem hoje</p>
           <Money value={sum(dueToday.map((c) => c.amount))} className="text-lg font-semibold text-amber-600" />
-          <p className="text-[11px] text-slate-500">{dueToday.length} {dueToday.length === 1 ? "conta" : "contas"}</p>
+          <p className="text-xs text-slate-500">{dueToday.length} {dueToday.length === 1 ? "conta" : "contas"}</p>
         </Card>
         <button onClick={() => { setTab("pendentes"); setFilter("7dias"); }} className="text-left">
           <Card className="p-4 sm:p-4">
             <p className="text-xs text-slate-500">Próximos 7 dias</p>
             <Money value={sum(week.map((c) => c.amount))} className="text-lg font-semibold" />
-            <p className="text-[11px] text-slate-500">{week.length} {week.length === 1 ? "conta" : "contas"}</p>
+            <p className="text-xs text-slate-500">{week.length} {week.length === 1 ? "conta" : "contas"}</p>
           </Card>
         </button>
       </div>

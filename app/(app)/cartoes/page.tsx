@@ -50,14 +50,15 @@ export default function CardsPage() {
             const pendingClosed = invs.filter((x) => x.month < current && x.remaining > 0);
             return (
               <Link key={c.id} href={`/cartoes/${c.id}`}>
-                <Card className="h-full transition duration-200 hover:-translate-y-0.5 hover:ring-slate-300 hover:shadow-lg dark:hover:ring-brand-400/30">
+                <Card className="h-full transition duration-200 hover:-translate-y-0.5 hover:ring-slate-300 active:scale-[0.99] dark:hover:ring-[#343a34]">
                   <CardVisual {...c} />
                   <div className="mt-4 space-y-3">
                     <div>
-                      <div className="mb-1 flex justify-between text-xs text-slate-500">
-                        <span>Usado <Money value={u.used} /></span>
-                        <span>Disponível <Money value={u.available} className="font-medium text-slate-800 dark:text-slate-100" /></span>
-                      </div>
+                      <dl className="mb-2 grid grid-cols-3 gap-2">
+                        <div><dt className="text-xs text-slate-500 dark:text-slate-400">Limite</dt><dd><Money value={u.limit} className="text-sm font-semibold" /></dd></div>
+                        <div><dt className="text-xs text-slate-500 dark:text-slate-400">Usado</dt><dd><Money value={u.used} className="text-sm font-semibold" /></dd></div>
+                        <div className="text-right"><dt className="text-xs text-slate-500 dark:text-slate-400">Disponível</dt><dd><Money value={u.available} className="text-sm font-bold text-brand-700 dark:text-brand-400" /></dd></div>
+                      </dl>
                       <Progress value={pct(u.used, u.limit)} tone={pct(u.used, u.limit) > 90 ? "red" : pct(u.used, u.limit) > 70 ? "amber" : "navy"} />
                     </div>
                     <div className="flex items-center justify-between text-sm">

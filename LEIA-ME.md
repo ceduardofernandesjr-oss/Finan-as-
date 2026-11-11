@@ -106,16 +106,20 @@ npm test                     # testes das regras financeiras
 
 ## Identidade visual (design system)
 
-Visual de fintech: base preta (cerca de 80% da tela) e verde-limão como assinatura (cerca de 20%: ações principais, itens selecionados, valores positivos e gráficos). O tema escuro é o padrão. O claro e o automático continuam em Configurações › Aparência.
+Conceito **Premium Dark Fintech + Lime Accent**: base preta, superfícies grafite e verde-limão só em ações principais, seleções, indicadores positivos e destaques. O tema escuro é o padrão; o claro e o automático continuam em Configurações › Aparência.
 
 | Papel | Cor |
 |---|---|
-| Verde-limão (marca, ações, positivo) | `#B7F000` |
-| Preto profundo (fundo) | `#080A08` |
-| Preto secundário (cartões) | `#111411` |
-| Cinza escuro (bordas, realces) | `#1B201B` |
-| Cinza médio (texto secundário) | `#858B84` |
-| Branco suave (fundo no tema claro) | `#F5F7F2` |
+| Fundo principal / secundário | `#080A08` / `#101310` |
+| Superfície dos cards / elevada | `#151914` / `#1C211B` |
+| Bordas sutis | `#272D25` |
+| Verde-limão principal / secundário / suave | `#B7F500` / `#93C900` / `#D5FF69` |
+| Texto principal / secundário / discreto | `#F4F5F2` / `#A0A59B` / `#70766D` |
+| Receitas · despesas · informação · alerta · sucesso | `#B7F500` · `#F16B78` · `#6EA8FE` · `#F4B740` · `#8DDC73` |
+
+- **Tipografia:** Inter (hospedada no próprio app, `@fontsource-variable/inter`), números tabulares nos valores. Saldo 36–42 px, títulos de página 28–32 px, títulos de seção 19 px, texto 15 px, auxiliar 12–13 px.
+- **Raios:** cards 22 px, botões 16 px, campos 14 px. Bordas e sombras discretas, sem cartão dentro de cartão.
+- **Tokens:** `app/globals.css` (`@theme`); componentes base em `components/ui.tsx`.
 
 - **Tokens** em `app/globals.css` (`@theme`): escalas `brand` (limão), `navy` (grafite das superfícies), `slate` (cinzas de texto), `emerald` (positivo = limão), `rose` (negativo), `violet` (cartões de crédito, menta discreta), raios, sombras e animações. Os gráficos usam variáveis `--chart-*`, que mudam com o tema.
 - **Componentes** em `components/ui.tsx`: botões (primário limão com texto preto, secundário, fantasma, perigo), cartões arredondados com sombra suave, campos com foco em limão, seletores segmentados, interruptores, selos, barras de progresso, estados vazios e de carregamento.

@@ -1,6 +1,6 @@
 "use client";
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Legend, Line, LineChart, Pie, PieChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine,
 } from "recharts";
 import { formatMoney, formatMoneyCompact } from "@/lib/finance/money";
@@ -13,16 +13,17 @@ export const C = {
   expense: "var(--chart-expense)",
   navy: "var(--chart-primary)",
   navyLight: "var(--chart-primary-soft)",
-  amber: "#f5b83d",
+  amber: "#f4b740",
+  info: "#6ea8fe",
   grid: "var(--chart-grid)",
   axis: "var(--chart-axis)",
 };
 const CURSOR = { fill: "var(--chart-cursor)" };
 /** Rampa da marca para distribuição por categoria (do maior para o menor). */
-export const RAMPA = ["#b7f000", "#7fa800", "#d9f383", "#45936f", "#858b84", "#c2c6bd", "#4b524b", "#e7c84a"];
+export const RAMPA = ["#b7f500", "#93c900", "#d5ff69", "#6ea8fe", "#a0a59b", "#f4b740", "#4b524b", "#8ddc73"];
 
 const axisProps = {
-  tick: { fill: C.axis, fontSize: 11 },
+  tick: { fill: C.axis, fontSize: 12 },
   tickLine: false,
   axisLine: false,
 } as const;
@@ -30,7 +31,7 @@ const axisProps = {
 function MoneyTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-2xl bg-white/95 px-3.5 py-2.5 text-xs shadow-xl ring-1 ring-slate-200 backdrop-blur dark:bg-navy-950/95 dark:ring-white/10">
+    <div className="rounded-2xl bg-white/95 px-3.5 py-2.5 text-xs shadow-xl ring-1 ring-slate-200 backdrop-blur dark:bg-navy-800/95 dark:ring-line">
       {label && <p className="mb-1.5 font-semibold text-slate-900 dark:text-white">{label}</p>}
       {payload.map((p) => (
         <p key={p.name} className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
@@ -43,6 +44,25 @@ function MoneyTooltip({ active, payload, label }: { active?: boolean; payload?: 
 }
 
 const yMoney = (v: number) => formatMoneyCompact(v);
+
+/** Fluxo financeiro: receitas e despesas (barras) e saldo líquido do mês (linha). */
+export function FluxoChart({ data, height = 250 }: { data: { label: string; receitas: number; despesas: number; saldo: number }[]; height?: number }) {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <ComposedChart data={data} barGap={3} margin={{ left: 0, right: 4, top: 8 }}>
+        <CartesianGrid vertical={false} stroke={C.grid} />
+        <XAxis dataKey="label" {...axisProps} />
+        <YAxis tickFormatter={yMoney} width={78} {...axisProps} />
+        <Tooltip content={<MoneyTooltip />} cursor={CURSOR} />
+        <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, paddingTop: 6 }} />
+        <ReferenceLine y={0} stroke={C.grid} />
+        <Bar name="Receitas" dataKey="receitas" fill={C.income} radius={[6, 6, 2, 2]} maxBarSize={18} />
+        <Bar name="Despesas" dataKey="despesas" fill={C.expense} radius={[6, 6, 2, 2]} maxBarSize={18} />
+        <Line name="Saldo líquido" dataKey="saldo" type="monotone" stroke={C.info} strokeWidth={2.5} dot={{ r: 3, strokeWidth: 0, fill: C.info }} activeDot={{ r: 5 }} />
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
+}
 
 export function IncomeExpenseChart({ data }: { data: { label: string; receitas: number; despesas: number }[] }) {
   return (
@@ -78,7 +98,7 @@ export function CategoryDonut({ data, height = 190 }: { data: { name: string; am
             <Tooltip content={<MoneyTooltip />} />
         </PieChart>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[11px] uppercase tracking-wider text-slate-500">Total</span>
+          <span className="text-xs uppercase tracking-wider text-slate-500">Total</span>
           <span className="money text-sm font-semibold sm:text-base">{formatMoney(total)}</span>
         </div>
       </div>

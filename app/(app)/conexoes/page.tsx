@@ -252,7 +252,7 @@ function LinhaRevisao({ s, onChange }: { s: Sugestao; onChange: (s: Sugestao) =>
           </Select>
         )}
       </div>
-      {s.motivo && <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">{s.motivo}</p>}
+      {s.motivo && <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{s.motivo}</p>}
     </li>
   );
 }

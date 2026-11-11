@@ -1,13 +1,17 @@
 @import "tailwindcss";
+/* Inter hospedada no próprio app (sem depender do Google Fonts) */
+@import "@fontsource-variable/inter";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter Variable", "Inter", "SF Pro Display", -apple-system, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* ===== Design system Finanças =====
-     Base preta (≈80%) + verde-limão como assinatura (≈20%).
-     Paleta: limão #B7F000 · preto #080A08 · preto 2 #111411 · cinza escuro #1B201B · cinza médio #858B84 · branco suave #F5F7F2 */
+     PREMIUM DARK FINTECH + LIME ACCENT
+     Fundos #080A08 / #101310 · superfícies #151914 / #1C211B · bordas #272D25
+     Limão #B7F500 / #93C900 / #D5FF69 · textos #F4F5F2 / #A0A59B / #70766D
+     Semânticas: receitas #B7F500 · despesas #F16B78 · informação #6EA8FE · alerta #F4B740 · sucesso #8DDC73 */
 
   /* "navy" = grafite: superfícies e bordas (o nome antigo foi mantido para não reescrever todas as telas) */
   --color-navy-50: #f0f2ec;
@@ -17,18 +21,19 @@
   --color-navy-400: #6e756d;
   --color-navy-500: #4b524b;
   --color-navy-600: #343a34;
-  --color-navy-700: #252a25;
-  --color-navy-800: #1b201b;
-  --color-navy-900: #111411;
+  --color-navy-700: #272d25;
+  --color-navy-800: #1c211b;
+  --color-navy-900: #151914;
+  --color-navy-925: #101310;
   --color-navy-950: #080a08;
 
   /* cinzas de texto com leve tom verde (cinza médio da marca = 500) */
-  --color-slate-50: #f5f7f2;
+  --color-slate-50: #f4f5f2;
   --color-slate-100: #eceee7;
   --color-slate-200: #dcdfd6;
   --color-slate-300: #c2c6bd;
-  --color-slate-400: #9ea39c;
-  --color-slate-500: #858b84;
+  --color-slate-400: #a0a59b;
+  --color-slate-500: #70766d;
   --color-slate-600: #656b64;
   --color-slate-700: #474c46;
   --color-slate-800: #2c312b;
@@ -39,9 +44,9 @@
   --color-brand-50: #f6fce1;
   --color-brand-100: #ebf8c0;
   --color-brand-200: #d9f383;
-  --color-brand-300: #c8f43a;
-  --color-brand-400: #b7f000;
-  --color-brand-500: #9ccc00;
+  --color-brand-300: #d5ff69;
+  --color-brand-400: #b7f500;
+  --color-brand-500: #93c900;
   --color-brand-600: #5f7e00;
   --color-brand-700: #4a6300;
   --color-brand-800: #3a4d00;
@@ -52,9 +57,9 @@
   --color-emerald-50: #f6fce1;
   --color-emerald-100: #ebf8c0;
   --color-emerald-200: #d9f383;
-  --color-emerald-300: #c8f43a;
-  --color-emerald-400: #b7f000;
-  --color-emerald-500: #9ccc00;
+  --color-emerald-300: #d5ff69;
+  --color-emerald-400: #b7f500;
+  --color-emerald-500: #93c900;
   --color-emerald-600: #5f7e00;
   --color-emerald-700: #4a6300;
   --color-emerald-800: #3a4d00;
@@ -65,9 +70,9 @@
   --color-rose-50: #fff1f2;
   --color-rose-100: #ffe1e5;
   --color-rose-200: #ffc5cd;
-  --color-rose-300: #ff9cab;
-  --color-rose-400: #ff6b81;
-  --color-rose-500: #f4405c;
+  --color-rose-300: #f7a2ab;
+  --color-rose-400: #f16b78;
+  --color-rose-500: #e5505f;
   --color-rose-600: #d62747;
   --color-rose-700: #b31c3a;
   --color-rose-800: #8f1931;
@@ -87,13 +92,25 @@
   --color-violet-900: #1d3d30;
   --color-violet-950: #0f231b;
 
-  --color-income: #b7f000;
-  --color-expense: #f4405c;
+  /* alerta, informação e sucesso */
+  --color-amber-300: #f8cd70;
+  --color-amber-400: #f4b740;
+  --color-amber-500: #e3a321;
+  --color-blue-300: #9cc4ff;
+  --color-blue-400: #6ea8fe;
+  --color-blue-500: #4d8ff5;
+  --color-success: #8ddc73;
+  --color-line: #272d25;
 
-  --radius-card: 1.5rem;
+  --color-income: #b7f500;
+  --color-expense: #f16b78;
+
+  --radius-card: 1.375rem; /* 22px */
+  --radius-button: 1rem; /* 16px */
+  --radius-field: 0.875rem; /* 14px */
   --shadow-card: 0 1px 2px rgb(8 10 8 / 0.04), 0 10px 28px -14px rgb(8 10 8 / 0.18);
-  --shadow-card-dark: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 16px 40px -20px rgb(0 0 0 / 0.9);
-  --shadow-glow: 0 10px 30px -10px rgb(183 240 0 / 0.55);
+  --shadow-card-dark: inset 0 1px 0 rgb(255 255 255 / 0.03), 0 12px 32px -20px rgb(0 0 0 / 0.8);
+  --shadow-glow: 0 8px 22px -10px rgb(183 245 0 / 0.5);
 
   --animate-in: fade-up 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --animate-sheet: sheet-up 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -116,33 +133,35 @@
 :root {
   color-scheme: light;
   --chart-income: #7fa800;
-  --chart-expense: #f4405c;
-  --chart-primary: #111411;
+  --chart-expense: #e5505f;
+  --chart-primary: #151914;
   --chart-primary-soft: #c2c6bd;
   --chart-grid: rgb(8 10 8 / 0.07);
-  --chart-axis: #858b84;
+  --chart-axis: #70766d;
   --chart-cursor: rgb(8 10 8 / 0.04);
 }
 .dark {
   color-scheme: dark;
-  --chart-income: #b7f000;
-  --chart-expense: #ff6b81;
-  --chart-primary: #b7f000;
-  --chart-primary-soft: #4b524b;
-  --chart-grid: rgb(255 255 255 / 0.06);
-  --chart-axis: #858b84;
+  --chart-income: #b7f500;
+  --chart-expense: #f16b78;
+  --chart-primary: #b7f500;
+  --chart-primary-soft: #343a34;
+  --chart-grid: rgb(255 255 255 / 0.05);
+  --chart-axis: #70766d;
   --chart-cursor: rgb(255 255 255 / 0.04);
 }
 
 /* o HTML já chega com fundo escuro (layout.tsx); no tema claro o CSS troca */
 html.dark { color-scheme: dark; }
-html:not(.dark) { color-scheme: light; background-color: #f5f7f2 !important; }
+html:not(.dark) { color-scheme: light; background-color: #f4f5f2 !important; }
 
 html,
 body {
-  @apply bg-slate-50 text-slate-900 antialiased dark:bg-navy-950 dark:text-slate-100;
+  @apply bg-slate-50 text-slate-900 antialiased dark:bg-navy-950 dark:text-slate-50;
   -webkit-tap-highlight-color: transparent;
-  font-feature-settings: "cv11", "ss01";
+  font-feature-settings: "cv11", "ss01", "ss03";
+  font-size: 15px;
+  line-height: 1.5;
   /* comportamento de app: segurar o dedo não abre menu de link nem seleciona texto */
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -155,8 +174,7 @@ body {
 /* brilho verde muito sutil no fundo escuro: dá profundidade sem poluir */
 .dark body {
   background-image:
-    radial-gradient(900px 480px at 100% -10%, rgb(183 240 0 / 0.07), transparent 60%),
-    radial-gradient(700px 420px at -10% 110%, rgb(183 240 0 / 0.04), transparent 60%);
+    radial-gradient(900px 420px at 100% -12%, rgb(183 245 0 / 0.045), transparent 60%);
   background-attachment: fixed;
 }
 ::selection {
@@ -165,13 +183,14 @@ body {
 }
 /* rolagem discreta no tema escuro */
 .dark ::-webkit-scrollbar { width: 10px; height: 10px; }
-.dark ::-webkit-scrollbar-thumb { background: #252a25; border-radius: 999px; border: 3px solid #080a08; }
+.dark ::-webkit-scrollbar-thumb { background: #272d25; border-radius: 999px; border: 3px solid #080a08; }
 .dark ::-webkit-scrollbar-track { background: transparent; }
-.dark { scrollbar-color: #252a25 transparent; }
+.dark { scrollbar-color: #272d25 transparent; }
 
 /* números financeiros: algarismos de mesma largura e um pouco mais justos */
 .money {
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "cv11";
   letter-spacing: -0.02em;
 }
 

@@ -221,7 +221,7 @@ export default function ReportsPage() {
               <div className="mt-4">
                 <p className="mb-1 text-xs text-slate-500">Parcelas de empréstimo sobre a receita: {formatPct(pct(monthlyLoan, avgIncome), 1)}</p>
                 <Progress value={pct(monthlyLoan, avgIncome) * (100 / 30)} tone={pct(monthlyLoan, avgIncome) > 30 ? "red" : pct(monthlyLoan, avgIncome) > 20 ? "amber" : "green"} />
-                <p className="mt-1 text-[11px] text-slate-400">Barra cheia = 30% da receita, limite costumeiro de comprometimento.</p>
+                <p className="mt-1 text-xs text-slate-400">Barra cheia = 30% da receita, limite costumeiro de comprometimento.</p>
               </div>
             )}
           </Card>

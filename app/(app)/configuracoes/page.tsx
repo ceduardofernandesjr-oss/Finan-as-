@@ -74,7 +74,7 @@ function Categories() {
     </li>
   );
   return (
-    <Card>
+    <Card id="categorias" className="scroll-mt-24">
       <CardTitle action={<Button size="sm" onClick={() => forms.openCategory({ kind })} icon={<Plus className="size-4" />}>Categoria</Button>}>Categorias</CardTitle>
       <Segmented className="mb-3" value={kind} onChange={setKind} options={[{ value: "despesa", label: "Despesas" }, { value: "receita", label: "Receitas" }]} />
       <ul className="divide-y divide-slate-100 dark:divide-navy-800">
@@ -151,7 +151,7 @@ function AccountSettings() {
     if (ok) setPassword("");
   };
   return (
-    <Card>
+    <Card id="perfil" className="scroll-mt-24">
       <CardTitle sub={email}>Sua conta</CardTitle>
       <div className="flex flex-wrap items-end gap-2">
         <Field label="Nova senha" className="min-w-56 flex-1">

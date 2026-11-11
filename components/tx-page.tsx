@@ -5,10 +5,10 @@ import { ArrowDownCircle, ArrowUpCircle, Plus, Search } from "lucide-react";
 import { useFinance } from "@/lib/store";
 import { txStatus } from "@/lib/finance/ledger";
 import { entriesIn, totals } from "@/lib/finance/reports";
-import { sum } from "@/lib/finance/money";
+import { formatMoney, sum } from "@/lib/finance/money";
 import { PageHeader } from "./shell";
 import { PeriodBar, TxList, usePeriod } from "./tx-list";
-import { Button, Card, EmptyState, Input, Money, Select, Skeleton } from "./ui";
+import { Button, Card, EmptyState, Input, Money, Select, Skeleton, cx } from "./ui";
 import { useForms } from "./forms/provider";
 import { CategorySelect } from "./forms/fields";
 
@@ -37,6 +37,23 @@ export function TxPage({ kind }: { kind: "receita" | "despesa" }) {
   const total = sum(list.map((t) => t.amount));
   const settled = sum(list.filter((t) => t.paid_date).map((t) => t.amount));
   const cardTotal = isIncome ? 0 : totals(entriesIn(entries, p.range.from, p.range.to).filter((e) => e.source === "cartao")).despesas;
+  // gráfico compacto: soma da lista mostrada por categoria principal (só apresentação; não muda nenhum cálculo)
+  const porCategoria = useMemo(() => {
+    const raiz = (id: string | null) => {
+      const c = id ? data.categories.find((x) => x.id === id) : null;
+      return c?.parent_id ? data.categories.find((x) => x.id === c.parent_id) ?? c : c;
+    };
+    const m = new Map<string, { id: string | null; nome: string; color: string; valor: number }>();
+    for (const t of list) {
+      const c = raiz(t.category_id);
+      const k = c?.id ?? "sem";
+      const atual = m.get(k) ?? { id: c?.id ?? null, nome: c?.name ?? "Sem categoria", color: c?.color ?? "#70766d", valor: 0 };
+      atual.valor += t.amount;
+      m.set(k, atual);
+    }
+    const tot = sum([...m.values()].map((x) => x.valor)) || 1;
+    return [...m.values()].sort((a, b) => b.valor - a.valor).slice(0, 5).map((x) => ({ ...x, pct: (x.valor / tot) * 100 }));
+  }, [list, data.categories]);
 
   return (
     <>
@@ -53,33 +70,42 @@ export function TxPage({ kind }: { kind: "receita" | "despesa" }) {
         <PeriodBar p={p} />
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Card className="p-4 sm:p-4">
-          <p className="text-xs text-slate-500">Total {isIncome ? "previsto" : "lançado"}</p>
-          <Money value={total} className="text-lg font-semibold" />
-        </Card>
-        <Card className="p-4 sm:p-4">
-          <p className="text-xs text-slate-500">{isIncome ? "Recebido" : "Pago"}</p>
-          <Money value={settled} className="text-lg font-semibold text-emerald-600 dark:text-emerald-400" />
-        </Card>
-        <Card className="p-4 sm:p-4">
-          <p className="text-xs text-slate-500">Pendente</p>
-          <Money value={total - settled} className="text-lg font-semibold text-amber-600" />
-        </Card>
-        {!isIncome ? (
-          <Link href="/cartoes">
-            <Card className="h-full p-4 sm:p-4">
-              <p className="text-xs text-slate-500">Compras no cartão</p>
-              <Money value={cardTotal} className="text-lg font-semibold text-violet-600 dark:text-violet-400" />
-            </Card>
-          </Link>
-        ) : (
-          <Card className="p-4 sm:p-4">
-            <p className="text-xs text-slate-500">Lançamentos</p>
-            <p className="text-lg font-semibold">{list.length}</p>
-          </Card>
-        )}
-      </div>
+      {/* resumo compacto: um bloco só, dividido */}
+      <section aria-label="Resumo" className="mb-4 grid grid-cols-2 overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:grid-cols-4 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70">
+        {[
+          { label: `Total ${isIncome ? "previsto" : "lançado"}`, value: <Money value={total} />, cls: "" },
+          { label: isIncome ? "Recebido" : "Pago", value: <Money value={settled} />, cls: "text-brand-700 dark:text-brand-400" },
+          { label: "Pendente", value: <Money value={total - settled} />, cls: "text-amber-700 dark:text-amber-400" },
+          isIncome
+            ? { label: "Lançamentos", value: <span className="tabular">{list.length}</span>, cls: "" }
+            : { label: "Compras no cartão", value: <Money value={cardTotal} />, cls: "text-blue-700 dark:text-blue-300", href: "/cartoes" },
+        ].map((x, i) => {
+          const corpo = (
+            <div className={cx("h-full px-4 py-3.5", i % 2 === 1 && "border-l border-slate-100 dark:border-line", i >= 2 && "border-t border-slate-100 sm:border-t-0 dark:border-line", i === 2 && "sm:border-l")}>
+              <p className="text-[13px] text-slate-500 dark:text-slate-400">{x.label}</p>
+              <p className={cx("money mt-0.5 text-[19px] font-bold tracking-tight", x.cls)}>{x.value}</p>
+            </div>
+          );
+          return "href" in x && x.href ? <Link key={x.label} href={x.href} className="block transition hover:bg-slate-50 dark:hover:bg-white/[0.02]">{corpo}</Link> : <div key={x.label}>{corpo}</div>;
+        })}
+      </section>
+
+      {porCategoria.length > 0 && (
+        <section aria-label="Por categoria" className="mb-4 rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70">
+          <p className="mb-3 text-[13px] font-medium text-slate-500 dark:text-slate-400">Por categoria · lançamentos da lista</p>
+          <ul className="space-y-2.5">
+            {porCategoria.map((c) => (
+              <li key={c.id ?? "sem"} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
+                <span className="flex min-w-0 items-center gap-2 text-sm"><span className="size-2 shrink-0 rounded-full" style={{ background: c.color }} /><span className="truncate">{c.nome}</span></span>
+                <span className="money text-sm font-semibold">{formatMoney(c.valor)} <span className="font-normal text-slate-500 dark:text-slate-400">· {Math.round(c.pct)}%</span></span>
+                <span className="col-span-2 h-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/[0.06]">
+                  <span className="block h-full rounded-full" style={{ width: `${Math.max(2, c.pct)}%`, background: c.color }} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <Card>
         <div className="mb-2 grid gap-2 sm:grid-cols-4">

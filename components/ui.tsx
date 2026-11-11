@@ -12,9 +12,9 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "success";
 // primária = verde-limão com texto preto (assinatura da marca); demais neutras
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-brand-400 font-semibold text-navy-950 shadow-[var(--shadow-glow)] hover:bg-brand-300 hover:shadow-[0_12px_34px_-10px_rgb(183_240_0/0.7)]",
+    "bg-brand-400 font-semibold text-navy-950 shadow-[var(--shadow-glow)] hover:bg-brand-300",
   secondary:
-    "bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300 dark:bg-white/[0.04] dark:text-slate-100 dark:ring-white/10 dark:hover:bg-white/[0.08] dark:hover:ring-white/20",
+    "bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300 dark:bg-navy-800 dark:text-slate-50 dark:ring-line dark:hover:bg-[#232922]",
   ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white",
   danger: "bg-rose-500 font-semibold text-white hover:bg-rose-600",
   success: "bg-brand-400 font-semibold text-navy-950 hover:bg-brand-300",
@@ -29,7 +29,7 @@ export const Button = forwardRef<
       ref={ref}
       disabled={disabled || loading}
       className={cx(
-        "inline-flex select-none items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none",
+        "inline-flex select-none items-center justify-center gap-2 rounded-[var(--radius-button)] font-medium transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400",
         size === "sm" ? "h-9 px-3.5 text-sm" : "h-11 px-5 text-sm",
         VARIANTS[variant],
@@ -69,7 +69,7 @@ export function Card({ className, children, ...rest }: { className?: string; chi
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/80 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-white/[0.06]",
+        "rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/80 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70",
         className,
       )}
       {...rest}
@@ -83,8 +83,8 @@ export function CardTitle({ children, action, sub }: { children: ReactNode; acti
   return (
     <div className="mb-4 flex items-start justify-between gap-2">
       <div>
-        <h2 className="text-[15px] font-semibold tracking-tight text-slate-900 dark:text-white">{children}</h2>
-        {sub && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
+        <h2 className="text-[19px] font-semibold leading-tight tracking-tight text-slate-900 dark:text-slate-50">{children}</h2>
+        {sub && <p className="mt-1 text-[13px] text-slate-500 dark:text-slate-400">{sub}</p>}
       </div>
       {action}
     </div>
@@ -106,7 +106,7 @@ export function Field({
 }) {
   return (
     <label className={cx("block", className)}>
-      <span className="mb-1.5 block text-xs font-medium tracking-wide text-slate-600 dark:text-slate-400">{label}</span>
+      <span className="mb-1.5 block text-[13px] font-medium text-slate-600 dark:text-slate-400">{label}</span>
       {children}
       {error ? (
         <span className="mt-1 block text-xs text-rose-600" role="alert">
@@ -120,7 +120,7 @@ export function Field({
 }
 
 const inputBase =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-400/20 disabled:opacity-60 dark:border-white/10 dark:bg-navy-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-white/20 dark:focus:border-brand-400 dark:[color-scheme:dark]";
+  "w-full rounded-[var(--radius-field)] border border-slate-200 bg-white px-3.5 text-[15px] text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-400/20 disabled:opacity-60 dark:border-line dark:bg-navy-925 dark:text-slate-50 dark:placeholder:text-slate-500 dark:hover:border-[#343a34] dark:focus:border-brand-400 dark:[color-scheme:dark]";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...rest },
@@ -188,10 +188,10 @@ export function Badge({ tone = "slate", children }: { tone?: "slate" | "green" |
     green: "bg-brand-50 text-brand-700 ring-1 ring-brand-200/60 dark:bg-brand-400/10 dark:text-brand-300 dark:ring-brand-400/20",
     red: "bg-rose-50 text-rose-700 ring-1 ring-rose-200/60 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/20",
     amber: "bg-amber-50 text-amber-800 ring-1 ring-amber-200/60 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20",
-    blue: "bg-slate-100 text-slate-800 dark:bg-white/[0.08] dark:text-slate-200",
+    blue: "bg-blue-50 text-blue-700 ring-1 ring-blue-200/60 dark:bg-blue-400/10 dark:text-blue-300 dark:ring-blue-400/20",
     violet: "bg-violet-50 text-violet-700 ring-1 ring-violet-200/60 dark:bg-violet-400/10 dark:text-violet-300 dark:ring-violet-400/20",
   };
-  return <span className={cx("inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium", tones[tone])}>{children}</span>;
+  return <span className={cx("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", tones[tone])}>{children}</span>;
 }
 
 export function Progress({ value, tone }: { value: number; tone?: "green" | "amber" | "red" | "navy" }) {

@@ -83,7 +83,7 @@ export default function CalendarPage() {
             <button className="font-semibold" onClick={() => { setOffset(0); setSelected(null); }}>{monthLabelFull(monthKey(month))}</button>
             <IconButton label="Próximo mês" onClick={() => { setOffset(offset + 1); setSelected(null); }}><ChevronRight className="size-5" /></IconButton>
           </div>
-          <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-slate-500">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-500">
             {WEEK.map((w) => <div key={w} className="py-1">{w}</div>)}
           </div>
           <div className="grid grid-cols-7 gap-1">
@@ -112,7 +112,7 @@ export default function CalendarPage() {
               );
             })}
           </div>
-          <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-500">
+          <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
             <span className="text-emerald-600 dark:text-brand-400">+ entradas</span>
             <span className="text-rose-500">− saídas e faturas</span>
             <span className="flex items-center gap-1"><CreditCard className="size-3 text-violet-500 dark:text-violet-300" /> fecha fatura</span>
