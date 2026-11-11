@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050605",
   width: "device-width",
   initialScale: 1,
   // comportamento de app: sem zoom de pinça nem de toque duplo
@@ -21,9 +20,10 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// Aplica o tema antes de pintar a tela e mantém a barra de status do celular na cor do tema.
 // Aplica o tema antes de pintar a tela (sem "piscar"). O escuro é o padrão da identidade visual;
 // quem escolheu o claro no botão de tema continua no claro.
-const themeScript = `(function(){var h=document.documentElement;try{var t=localStorage.getItem('tema');var d=t==='claro'?false:t==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;if(d)h.classList.add('dark')}catch(e){h.classList.add('dark')}try{document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});document.addEventListener('contextmenu',function(e){var t=e.target;if(!(t&&t.closest&&t.closest('input,textarea,select,[contenteditable=true]')))e.preventDefault()})}catch(e){}})()`;
+const themeScript = `(function(){var h=document.documentElement;try{var t=localStorage.getItem('tema');var d=t==='claro'?false:t==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;if(d)h.classList.add('dark')}catch(e){h.classList.add('dark')}try{var barra=function(){var c=h.classList.contains('dark')?'#050605':'#f4f5f2',ms=document.querySelectorAll('meta[name=theme-color]');if(!ms.length){var m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);ms=[m]}for(var i=0;i<ms.length;i++)ms[i].setAttribute('content',c)};barra();new MutationObserver(barra).observe(h,{attributes:true,attributeFilter:['class']});document.addEventListener('DOMContentLoaded',barra)}catch(e){}try{document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});document.addEventListener('contextmenu',function(e){var t=e.target;if(!(t&&t.closest&&t.closest('input,textarea,select,[contenteditable=true]')))e.preventDefault()})}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
