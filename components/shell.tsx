@@ -169,11 +169,24 @@ export function Shell({ children }: { children: ReactNode }) {
 
       <div className="min-w-0 flex-1">
         {/* topo (celular) */}
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200/70 bg-slate-50/85 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden dark:border-white/[0.06] dark:bg-navy-950/80">
+        <header className="sticky top-0 z-30 flex items-center justify-between bg-slate-50/85 px-4 pb-2.5 pt-[max(0.625rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden dark:bg-navy-950/85">
           <Logo />
-          <IconButton label={dark ? "Modo claro" : "Modo escuro"} onClick={toggle}>
-            {dark ? <Sun className="size-5" /> : <Moon className="size-5" />}
-          </IconButton>
+          <div className="-mr-1.5 flex items-center gap-0.5">
+            <IconButton label={dark ? "Modo claro" : "Modo escuro"} onClick={toggle}>
+              {dark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+            </IconButton>
+            <Link
+              href="/configuracoes"
+              aria-label="Configurações"
+              title="Configurações"
+              className={cx(
+                "flex size-10 items-center justify-center rounded-xl transition hover:bg-slate-100 active:scale-95 dark:hover:bg-white/[0.06]",
+                isActive(path, "/configuracoes") ? "text-brand-600 dark:text-brand-400" : "text-slate-500 dark:text-slate-400",
+              )}
+            >
+              <Settings className="size-5" />
+            </Link>
+          </div>
         </header>
 
         {error && (
@@ -185,7 +198,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         )}
 
-        <main className="mx-auto max-w-7xl animate-in px-4 pb-32 pt-5 lg:px-10 lg:pb-14 lg:pt-9">{children}</main>
+        <main className="mx-auto max-w-7xl animate-in px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-3 lg:px-10 lg:pb-14 lg:pt-9">{children}</main>
       </div>
 
       {/* botão de ação rápida */}
@@ -193,21 +206,23 @@ export function Shell({ children }: { children: ReactNode }) {
         onClick={() => setQuick((q) => !q)}
         aria-label="Adicionar"
         aria-expanded={quick}
-        className="fixed bottom-[calc(1.1rem+env(safe-area-inset-bottom))] left-1/2 z-40 flex size-14 -translate-x-1/2 items-center justify-center rounded-2xl bg-brand-400 text-navy-950 shadow-[0_12px_32px_-8px_rgb(183_240_0/0.6)] ring-4 ring-slate-50 transition hover:bg-brand-300 active:scale-95 lg:bottom-8 lg:left-auto lg:right-8 lg:translate-x-0 lg:ring-0 dark:ring-navy-950"
+        className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 flex size-12 -translate-x-1/2 items-center justify-center rounded-2xl bg-brand-400 text-navy-950 shadow-[0_6px_16px_-6px_rgb(183_240_0/0.45)] transition hover:bg-brand-300 active:scale-95 lg:bottom-8 lg:left-auto lg:right-8 lg:size-14 lg:translate-x-0 lg:shadow-[0_12px_32px_-8px_rgb(183_240_0/0.6)]"
       >
-        <Plus className={cx("size-7 transition-transform duration-200", quick && "rotate-45")} strokeWidth={2.4} />
+        <Plus className={cx("size-6 transition-transform duration-200 lg:size-7", quick && "rotate-45")} strokeWidth={2.4} />
       </button>
       {quick && <QuickAddMenu onClose={() => setQuick(false)} />}
 
       {/* navegação inferior (celular) */}
-      <nav aria-label="Navegação rápida" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-slate-200/80 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden dark:border-white/[0.06] dark:bg-navy-950/90">
+      <nav aria-label="Navegação rápida" className="fixed inset-x-0 bottom-0 z-30 grid h-[calc(4rem+env(safe-area-inset-bottom))] grid-cols-5 items-start border-t border-slate-200/70 bg-white/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden dark:border-white/[0.05] dark:bg-navy-950/92">
         {MOBILE.slice(0, 2).map((h) => (
           <MobileItem key={h} href={h} path={path} />
         ))}
         <span />
         <MobileItem href={MOBILE[2]} path={path} />
-        <button onClick={() => setMore(true)} className="flex flex-col items-center gap-1 pb-2 pt-2.5 text-[11px] font-medium text-slate-500 transition active:scale-95 dark:text-slate-400">
-          <Menu className="size-[22px]" strokeWidth={1.9} />
+        <button onClick={() => setMore(true)} aria-label="Mais" className="flex h-16 flex-col items-center justify-center gap-0.5 text-[10.5px] font-medium text-slate-500 transition active:scale-95 dark:text-slate-400">
+          <span className="flex h-7 w-12 items-center justify-center rounded-full">
+            <Menu className="size-[21px]" strokeWidth={1.9} />
+          </span>
           Mais
         </button>
       </nav>
@@ -293,10 +308,11 @@ function MobileItem({ href, path }: { href: string; path: string }) {
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={cx("relative flex flex-col items-center gap-1 pb-2 pt-2.5 text-[11px] transition active:scale-95", active ? "font-semibold text-navy-950 dark:text-brand-400" : "font-medium text-slate-500 dark:text-slate-400")}
+      className={cx("flex h-16 flex-col items-center justify-center gap-0.5 text-[10.5px] transition active:scale-95", active ? "font-semibold text-navy-950 dark:text-white" : "font-medium text-slate-500 dark:text-slate-400")}
     >
-      {active && <span className="absolute top-0 h-0.5 w-8 rounded-full bg-brand-500 dark:bg-brand-400" />}
-      <n.icon className="size-[22px]" strokeWidth={active ? 2.2 : 1.9} />
+      <span className={cx("flex h-7 w-12 items-center justify-center rounded-full transition-colors", active && "bg-navy-950 text-brand-400 dark:bg-brand-400/15")}>
+        <n.icon className="size-[21px]" strokeWidth={active ? 2.2 : 1.9} />
+      </span>
       {n.label === "Dashboard" ? "Início" : n.label}
     </Link>
   );

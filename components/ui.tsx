@@ -224,11 +224,14 @@ export function Segmented<T extends string>({
   onChange,
   options,
   className,
+  sutil,
 }: {
   value: T;
   onChange: (v: T) => void;
   options: { value: T; label: ReactNode }[];
   className?: string;
+  /** item ativo discreto (sem o verde-limão), para abas dentro de um cartão */
+  sutil?: boolean;
 }) {
   return (
     <div role="tablist" className={cx("inline-flex max-w-full overflow-x-auto rounded-xl bg-slate-100 p-1 [scrollbar-width:none] ring-1 ring-slate-200/70 dark:bg-white/[0.04] dark:ring-white/[0.06]", className)}>
@@ -242,7 +245,9 @@ export function Segmented<T extends string>({
           className={cx(
             "shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:text-sm",
             value === o.value
-              ? "bg-navy-950 text-brand-400 shadow-sm dark:bg-brand-400 dark:text-navy-950"
+              ? sutil
+                ? "bg-white text-slate-900 shadow-sm dark:bg-white/[0.1] dark:text-white"
+                : "bg-navy-950 text-brand-400 shadow-sm dark:bg-brand-400 dark:text-navy-950"
               : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white",
           )}
         >

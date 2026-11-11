@@ -1,101 +1,71 @@
 "use client";
+// Tela Início: leitura rápida, de cima para baixo — saldo, patrimônio e previsão, receitas e despesas,
+// gráficos (em abas), contas e últimas movimentações. Todos os números vêm de lib/finance (testados).
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownCircle, ArrowDownRight, ArrowUpCircle, ArrowUpRight, CalendarClock, CreditCard, Eye, EyeOff,
-  Landmark, PiggyBank, Receipt, Scale, TrendingUp, Wallet,
+  AlertTriangle, ArrowDownCircle, ArrowDownRight, ArrowUpCircle, ArrowUpRight, CalendarClock, ChevronDown, ChevronRight, CreditCard,
+  Eye, EyeOff, Landmark, PiggyBank, TrendingUp, Wallet,
 } from "lucide-react";
 import { useFinance } from "@/lib/store";
 import { addDays, addMonths, formatBR, monthEnd, monthKey, monthLabel, monthRange, monthStart, parts, periodRange } from "@/lib/finance/dates";
 import { cardUsage } from "@/lib/finance/cards";
 import { loanStatus } from "@/lib/finance/loans";
 import { allInvoices, budgetStatus, byCategory, cashFlow, entriesIn, netWorthSeries, pendingCommitments, resultByMonth } from "@/lib/finance/reports";
-import { balanceSummary, dueSoon, forecastBalance, pendingSummary, periodSummary, type BalanceSummary, type DueItem } from "@/lib/finance/dashboard";
+import { balanceSummary, dueSoon, forecastBalance, pendingSummary, periodSummary, type DueItem } from "@/lib/finance/dashboard";
 import { analyze } from "@/lib/finance/insights";
 import { formatMoney, sum } from "@/lib/finance/money";
-import { PageHeader } from "@/components/shell";
+import { ACCOUNT_TYPE_LABEL, type AccountType } from "@/lib/types";
 import { PeriodBar, usePeriod } from "@/components/tx-list";
-import { Badge, Button, Card, CardTitle, EmptyState, Money, Progress, Skeleton, cx } from "@/components/ui";
+import { Badge, Button, EmptyState, Money, Progress, Segmented, Skeleton, cx } from "@/components/ui";
 import { AreaMoneyChart, C, CashFlowChart, CategoryDonut, HorizontalBars, IncomeExpenseChart, LineMoneyChart } from "@/components/charts";
+import { CategoryIcon } from "@/components/category-icon";
 import { useForms } from "@/components/forms/provider";
 import { InsightCard } from "@/components/insight-card";
 
 type Tone = "navy" | "green" | "red" | "amber" | "violet";
 const TONES: Record<Tone, string> = {
-  navy: "bg-slate-100 text-slate-700 ring-slate-200/80 dark:bg-white/[0.06] dark:text-slate-200 dark:ring-white/10",
-  green: "bg-brand-50 text-brand-700 ring-brand-200/80 dark:bg-brand-400/10 dark:text-brand-400 dark:ring-brand-400/20",
-  red: "bg-rose-50 text-rose-600 ring-rose-200/80 dark:bg-rose-500/10 dark:text-rose-400 dark:ring-rose-400/20",
-  amber: "bg-amber-50 text-amber-700 ring-amber-200/80 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20",
-  violet: "bg-violet-50 text-violet-700 ring-violet-200/80 dark:bg-violet-400/10 dark:text-violet-300 dark:ring-violet-400/20",
+  navy: "bg-slate-100 text-slate-700 dark:bg-white/[0.06] dark:text-slate-200",
+  green: "bg-brand-50 text-brand-700 dark:bg-brand-400/10 dark:text-brand-400",
+  red: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
+  amber: "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300",
+  violet: "bg-violet-50 text-violet-700 dark:bg-violet-400/10 dark:text-violet-300",
 };
 
 function IconTile({ icon: Icon, tone, className }: { icon: typeof Wallet; tone: Tone; className?: string }) {
   return (
-    <span className={cx("flex size-8 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset transition group-hover:scale-105", TONES[tone], className)}>
+    <span className={cx("flex size-8 shrink-0 items-center justify-center rounded-xl", TONES[tone], className)}>
       <Icon className="size-4" strokeWidth={2.1} />
     </span>
   );
 }
 
-function CardLink({ href, children }: { href?: string; children: React.ReactNode }) {
-  return href ? (
-    <Link href={href} className="block h-full rounded-[var(--radius-card)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400">
+/** Superfície única do painel: cinza-escuro, sem borda no escuro (sem cartão dentro de cartão). */
+function Superficie({ children, className, label }: { children: React.ReactNode; className?: string; label?: string }) {
+  return (
+    <section aria-label={label} className={cx("rounded-[22px] bg-white p-4 shadow-[0_1px_2px_rgb(8_10_8/0.04)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-none dark:ring-0", className)}>
       {children}
+    </section>
+  );
+}
+
+function Titulo({ children, acao, sub }: { children: React.ReactNode; acao?: React.ReactNode; sub?: React.ReactNode }) {
+  return (
+    <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h2 className="text-[15px] font-semibold tracking-tight">{children}</h2>
+        {sub && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
+      </div>
+      {acao}
+    </div>
+  );
+}
+
+function LinkSecao({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} className="flex shrink-0 items-center gap-0.5 rounded-lg px-1.5 py-1 text-xs font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+      {children} <ChevronRight className="size-3.5" />
     </Link>
-  ) : (
-    <>{children}</>
-  );
-}
-
-/** Indicador secundário (compacto). */
-function Stat({
-  label, value, icon, tone = "navy", sub, href,
-}: { label: string; value: number; icon: typeof Wallet; tone?: Tone; sub?: React.ReactNode; href?: string }) {
-  return (
-    <CardLink href={href}>
-      <Card className="group h-full p-4 transition duration-200 hover:-translate-y-0.5 hover:ring-slate-300 sm:p-4 dark:hover:ring-white/15">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
-          <IconTile icon={icon} tone={tone} />
-        </div>
-        <Money value={value} className="mt-2 block text-xl font-semibold" />
-        {sub && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{sub}</p>}
-      </Card>
-    </CardLink>
-  );
-}
-
-/** Indicador principal do período: valor, variação contra o período anterior e quanto já foi realizado. */
-function Kpi({
-  label, value, icon, tone, href, variacao, realizado, rodape,
-}: {
-  label: string;
-  value: number;
-  icon: typeof Wallet;
-  tone: Tone;
-  href?: string;
-  variacao?: React.ReactNode;
-  realizado?: { pct: number; texto: React.ReactNode };
-  rodape?: React.ReactNode;
-}) {
-  return (
-    <CardLink href={href}>
-      <Card className="group flex h-full flex-col p-4 transition duration-200 hover:-translate-y-0.5 hover:ring-slate-300 sm:p-5 dark:hover:ring-white/15">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium text-slate-500 sm:text-[13px] dark:text-slate-400">{label}</span>
-          <IconTile icon={icon} tone={tone} className="sm:size-9" />
-        </div>
-        <Money value={value} className={cx("mt-2 block text-xl font-semibold tracking-tight sm:text-2xl", value < 0 && "text-rose-600 dark:text-rose-400")} />
-        {variacao && <div className="mt-1.5">{variacao}</div>}
-        {realizado && (
-          <div className="mt-auto pt-3">
-            <Progress value={realizado.pct} tone={tone === "red" ? "red" : "green"} />
-            <p className="mt-1.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400">{realizado.texto}</p>
-          </div>
-        )}
-        {rodape && <div className={cx("text-[11px] leading-snug text-slate-500 dark:text-slate-400", realizado ? "mt-1" : "mt-auto pt-3")}>{rodape}</div>}
-      </Card>
-    </CardLink>
   );
 }
 
@@ -167,84 +137,6 @@ function useOcultarSaldo() {
       return !v;
     });
   return { oculto, alternar, valor: (c: number) => (oculto ? OCULTO : formatMoney(c)) };
-}
-
-/** Destaque do topo: saldo disponível, saldo de cada conta, consolidado, patrimônio líquido e previsão. */
-function SaldoDestaque({ s, previsto, ate, ocultar }: { s: BalanceSummary; previsto: number | null; ate: string; ocultar: ReturnType<typeof useOcultarSaldo> }) {
-  const { oculto, alternar, valor } = ocultar;
-  const tiles: { label: string; value: number; hint: string; href?: string; destaque?: boolean }[] = [];
-  if (s.temInvestimentos)
-    tiles.push({ label: "Saldo consolidado", value: s.consolidado, hint: `inclui ${valor(s.investido)} investidos`, href: "/contas" });
-  tiles.push({
-    label: "Patrimônio líquido",
-    value: s.patrimonio,
-    hint: s.dividas ? `${valor(s.ativos)} em contas − ${valor(s.dividas)} em dívidas` : "contas, sem dívidas registradas",
-    href: "/relatorios",
-  });
-  if (previsto !== null) tiles.push({ label: `Previsto em ${ate}`, value: previsto, hint: "saldo disponível no fim do mês", destaque: true });
-
-  return (
-    <Card className="relative mb-5 overflow-hidden !bg-navy-950 p-5 text-white !ring-white/[0.06] sm:p-7 dark:!bg-navy-900 dark:!ring-brand-400/15">
-      <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-brand-400/25 blur-[90px]" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-32 right-24 size-64 rounded-full bg-brand-400/10 blur-[90px]" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgb(255_255_255/0.06)_1px,transparent_1px)] bg-[size:18px_18px] [mask-image:linear-gradient(to_left,black,transparent_60%)]" />
-      <div className="relative flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="flex items-center gap-2 text-sm font-medium text-slate-300">
-            <span className="flex size-8 items-center justify-center rounded-xl bg-brand-400 text-navy-950"><Wallet className="size-4" strokeWidth={2.3} /></span>
-            Saldo disponível
-            <button
-              type="button"
-              onClick={alternar}
-              aria-label={oculto ? "Mostrar saldo" : "Ocultar saldo"}
-              aria-pressed={oculto}
-              title={oculto ? "Mostrar saldo" : "Ocultar saldo"}
-              className="flex size-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white active:scale-90 focus-visible:outline-2 focus-visible:outline-brand-400"
-            >
-              {oculto ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            </button>
-          </p>
-          <p className={cx("money mt-3 text-4xl font-semibold sm:text-5xl", !oculto && s.disponivel < 0 && "text-rose-300")} aria-live="polite">{valor(s.disponivel)}</p>
-          <p className="mt-2 text-xs text-slate-400">
-            {s.temInvestimentos ? "Em contas, carteiras e dinheiro, sem os investimentos" : "Soma das suas contas ativas hoje"}
-          </p>
-        </div>
-        <Link href="/contas" className="rounded-xl bg-white/[0.08] px-3.5 py-2 text-sm font-medium ring-1 ring-white/10 transition hover:bg-brand-400 hover:text-navy-950 hover:ring-brand-400 active:scale-95">Ver contas</Link>
-      </div>
-
-      <div className="relative mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {tiles.map((t, i) => {
-          const corpo = (
-            <div className={cx("h-full rounded-2xl p-3 ring-1 transition", t.destaque ? "bg-brand-400/[0.08] ring-brand-400/25" : "bg-white/[0.05] ring-white/10", t.href && "hover:bg-white/[0.1]")}>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">{t.label}</p>
-              <p className={cx("money mt-1 text-lg font-semibold sm:text-xl", !oculto && t.value < 0 ? "text-rose-300" : t.destaque ? "text-brand-400" : "text-white")}>{valor(t.value)}</p>
-              <p className="mt-0.5 text-[11px] leading-snug text-slate-400">{t.hint}</p>
-            </div>
-          );
-          const span = tiles.length === 3 && i === 2 ? "col-span-2 sm:col-span-1" : tiles.length === 1 ? "col-span-2 sm:col-span-1" : "";
-          return (
-            <div key={t.label} className={span}>
-              {t.href ? <Link href={t.href} className="block h-full rounded-2xl focus-visible:outline-2 focus-visible:outline-brand-400">{corpo}</Link> : corpo}
-            </div>
-          );
-        })}
-      </div>
-
-      {s.contas.length > 0 && (
-        <ul className="relative mt-4 flex flex-wrap gap-2">
-          {s.contas.map((a) => (
-            <li key={a.id}>
-              <Link href={`/contas/${a.id}`} className="flex items-center gap-2 rounded-full bg-white/[0.06] px-3 py-1.5 text-xs ring-1 ring-white/10 transition hover:bg-white/[0.12]">
-                <span className="size-2 rounded-full" style={{ background: a.color }} />
-                <span className="text-slate-300">{a.name}</span>
-                <span className={cx("money font-semibold", !oculto && a.saldo < 0 ? "text-rose-300" : "text-white")}>{valor(a.saldo)}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
-  );
 }
 
 /** Previsão do saldo disponível, dia a dia, até o fim do mês. */
@@ -370,12 +262,83 @@ function Vencimentos({ due, forms }: { due: ReturnType<typeof dueSoon>; forms: R
   );
 }
 
+/** Cartão compacto do saldo disponível (com olho para ocultar). */
+function Saldo({ s, ocultar }: { s: ReturnType<typeof balanceSummary>; ocultar: ReturnType<typeof useOcultarSaldo> }) {
+  const { oculto, alternar, valor } = ocultar;
+  return (
+    <section aria-label="Saldo disponível" className="rounded-[22px] bg-navy-950 px-5 py-4 text-white ring-1 ring-white/[0.06] dark:bg-navy-900 dark:ring-0">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[13px] font-medium text-slate-400">Saldo disponível</p>
+        <button
+          type="button"
+          onClick={alternar}
+          aria-label={oculto ? "Mostrar saldo" : "Ocultar saldo"}
+          aria-pressed={oculto}
+          title={oculto ? "Mostrar saldo" : "Ocultar saldo"}
+          className="-mr-2 flex size-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white active:scale-90 focus-visible:outline-2 focus-visible:outline-brand-400"
+        >
+          {oculto ? <EyeOff className="size-[18px]" /> : <Eye className="size-[18px]" />}
+        </button>
+      </div>
+      <p className={cx("money mt-0.5 text-[32px] font-semibold leading-tight tracking-tight sm:text-[38px]", !oculto && s.disponivel < 0 && "text-rose-300")} aria-live="polite">
+        {valor(s.disponivel)}
+      </p>
+      <p className="mt-1 text-xs text-slate-400">
+        {s.temInvestimentos ? (
+          <>
+            Consolidado <span className="money font-medium text-slate-200">{valor(s.consolidado)}</span> · inclui {valor(s.investido)} investidos
+          </>
+        ) : (
+          `Em ${s.contas.length} ${s.contas.length === 1 ? "conta ativa" : "contas ativas"}, hoje`
+        )}
+      </p>
+    </section>
+  );
+}
+
+/** Indicador compacto (patrimônio, previsão). */
+function Indicador({ label, valor, negativo, hint, href, destaque }: { label: string; valor: string; negativo: boolean; hint: string; href?: string; destaque?: boolean }) {
+  const corpo = (
+    <div className="h-full rounded-[20px] bg-white p-3.5 ring-1 ring-slate-200/70 transition dark:bg-navy-900 dark:ring-0 dark:hover:bg-navy-800/70">
+      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      <p className={cx("money mt-1 text-lg font-semibold tracking-tight", negativo ? "text-rose-600 dark:text-rose-400" : destaque ? "text-brand-700 dark:text-brand-400" : "")}>{valor}</p>
+      <p className="mt-0.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400">{hint}</p>
+    </div>
+  );
+  return href ? <Link href={href} className="block h-full rounded-[20px] focus-visible:outline-2 focus-visible:outline-brand-400">{corpo}</Link> : corpo;
+}
+
+/** Linha da lista "mais indicadores". */
+function LinhaIndicador({ label, value, sub, href, tone = "navy", icon }: { label: string; value: number; sub?: React.ReactNode; href: string; tone?: Tone; icon: typeof Wallet }) {
+  return (
+    <li>
+      <Link href={href} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-slate-50 dark:hover:bg-white/[0.03]">
+        <IconTile icon={icon} tone={tone} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm">{label}</p>
+          {sub && <p className="text-[11px] text-slate-500 dark:text-slate-400">{sub}</p>}
+        </div>
+        <Money value={value} className="text-sm font-semibold" />
+      </Link>
+    </li>
+  );
+}
+
+const ICONE_CONTA: Record<AccountType, typeof Wallet> = {
+  corrente: Landmark, poupanca: PiggyBank, carteira: Wallet, dinheiro: Wallet, investimento: TrendingUp,
+};
+
+type Aba = "mensal" | "previsao" | "categorias" | "patrimonio" | "caixa" | "evolucao" | "comparativo";
+
 export default function Dashboard() {
   const { data, entries, today, loading } = useFinance();
   const p = usePeriod("mes");
   const forms = useForms();
   const ocultar = useOcultarSaldo();
   const { from, to } = p.range;
+  const [maisIndicadores, setMaisIndicadores] = useState(false);
+  const [vencAberto, setVencAberto] = useState(false);
+  const [aba, setAba] = useState<Aba>("mensal");
 
   // todos os números do painel, recalculados só quando os dados, o dia ou o período mudam
   const v = useMemo(() => {
@@ -416,22 +379,28 @@ export default function Dashboard() {
     const comparison = cats.slice(0, 6).map((c) => ({ name: c.name, atual: c.amount, anterior: prevCats.get(c.id) ?? 0 }));
     const budgets = budgetStatus(data.budgets, data.categories, entries, monthKey(today)).filter((b) => b.level !== "ok");
     const insights = analyze(data, today, entries).filter((i) => i.tone !== "info").slice(0, 2);
+    // últimas movimentações: o que já aconteceu (pago, recebido ou comprado no cartão), mais recente primeiro
+    const ultimas = entries
+      .filter((e) => e.settled && e.date <= today)
+      .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
+      .slice(0, 6);
 
     return {
       vs, resumo, saldos, fimMes, previsao, receber, pagar, overdue, future, due, cards, usages, loanDebt, cardDebt,
-      openInvoices, monthly, worth, flow, evolution, cats, comparison, budgets, insights,
+      openInvoices, monthly, worth, flow, evolution, cats, comparison, budgets, insights, ultimas,
     };
   }, [data, entries, today, p.period, p.offset, from, to]);
 
   if (loading)
     return (
       <div className="space-y-4">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-52" />
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-32" />)}
+        <Skeleton className="h-9 w-full max-w-sm" />
+        <Skeleton className="h-28" />
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
         </div>
-        <Skeleton className="h-72" />
+        <Skeleton className="h-48" />
       </div>
     );
 
@@ -439,173 +408,259 @@ export default function Dashboard() {
   const t = resumo.atual;
   const ate = formatBR(v.fimMes).slice(0, 5);
   const empty = !data.accounts.length && !data.transactions.length && !data.cards.length;
+  const { valor, oculto } = ocultar;
+  const s = v.saldos;
+  const catPorId = new Map(data.categories.map((c) => [c.id, c]));
+  const temVenc = v.due.atrasados.length > 0 || v.due.proximos.length > 0;
+  const tituloPeriodo = p.period === "mes" ? p.title.toLowerCase() : p.period === "semana" ? `a semana (${p.title})` : p.period === "trimestre" ? `o ${p.title}` : p.title;
+
+  const abas: { value: Aba; label: string; sub: string }[] = [
+    { value: "mensal", label: "Receitas × despesas", sub: p.period === "ano" ? "Por mês do ano" : "Últimos 6 meses, por mês" },
+    { value: "previsao", label: "Previsão", sub: `Saldo disponível de hoje até ${ate} com contas, recebimentos e faturas pendentes` },
+    { value: "categorias", label: "Categorias", sub: `Gastos de ${tituloPeriodo} · compras no cartão incluídas` },
+    { value: "patrimonio", label: "Patrimônio", sub: "Últimos 12 meses: contas − cartões − empréstimos" },
+    { value: "caixa", label: "Fluxo de caixa", sub: "Dinheiro que entrou e saiu das contas (faturas incluídas, transferências não)" },
+    { value: "evolucao", label: "Mensal", sub: "Receitas − despesas de cada mês, últimos 12 meses" },
+    { value: "comparativo", label: "Comparativo", sub: "Maiores categorias contra o período anterior" },
+  ];
+  const abaAtual = abas.find((a) => a.value === aba)!;
 
   return (
     <>
-      <PageHeader title="Visão geral" sub={`Hoje é ${formatBR(today)}`} actions={<PeriodBar p={p} />} />
+      <h1 className="sr-only">Visão geral</h1>
+      <div className="mb-4">
+        <PeriodBar p={p} compact />
+      </div>
 
       {empty && (
-        <Card className="relative mb-5 overflow-hidden !bg-navy-950 text-white !ring-white/[0.06] sm:p-7 dark:!bg-navy-900 dark:!ring-brand-400/15">
-          <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-brand-400/25 blur-[90px]" />
-          <p className="relative text-xl font-semibold tracking-tight">Vamos começar?</p>
-          <p className="relative mt-1 text-sm text-slate-400">Três passos e seu painel ganha vida:</p>
-          <ol className="relative mt-4 grid gap-2 text-sm sm:grid-cols-3">
-            {["Cadastre suas contas e o saldo de hoje.", "Cadastre seus cartões de crédito.", "Lance receitas, despesas e contas fixas."].map((s, i) => (
-              <li key={s} className="flex gap-3 rounded-2xl bg-white/[0.05] p-3 ring-1 ring-white/[0.08]">
+        <section className="mb-4 rounded-[22px] bg-navy-950 p-5 text-white ring-1 ring-white/[0.06] dark:bg-navy-900 dark:ring-0">
+          <p className="text-lg font-semibold tracking-tight">Vamos começar?</p>
+          <p className="mt-1 text-sm text-slate-400">Três passos e seu painel ganha vida:</p>
+          <ol className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
+            {["Cadastre suas contas e o saldo de hoje.", "Cadastre seus cartões de crédito.", "Lance receitas, despesas e contas fixas."].map((x, i) => (
+              <li key={x} className="flex gap-3 rounded-2xl bg-white/[0.05] p-3">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-brand-400 text-xs font-bold text-navy-950">{i + 1}</span>
-                {s}
+                {x}
               </li>
             ))}
           </ol>
-          <div className="relative mt-5 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Button onClick={() => forms.openAccount()}>Cadastrar conta</Button>
             <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => forms.openCard()}>Cadastrar cartão</Button>
           </div>
-        </Card>
+        </section>
       )}
 
-      {!empty && <SaldoDestaque s={v.saldos} previsto={v.previsao ? v.previsao.end : null} ate={ate} ocultar={ocultar} />}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)] lg:gap-6">
+        {/* coluna principal */}
+        <div className="stagger min-w-0 space-y-4">
+          {!empty && <Saldo s={s} ocultar={ocultar} />}
 
-      {/* Resumo do período escolhido */}
-      <div className="mb-2 flex items-baseline justify-between gap-2">
-        <h2 className="text-[15px] font-semibold tracking-tight">
-          {p.period === "mes" ? `Resumo de ${p.title.toLowerCase()}` : p.period === "semana" ? `Resumo da semana (${p.title})` : p.period === "trimestre" ? `Resumo do ${p.title}` : `Resumo de ${p.title}`}
-        </h2>
-        <span className="text-[11px] text-slate-500 dark:text-slate-400">inclui o que ainda está previsto</span>
-      </div>
-      <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi
-          label="Receitas"
-          value={t.receitas}
-          icon={ArrowUpCircle}
-          tone="green"
-          href="/receitas"
-          variacao={<Variacao pct={resumo.variacao.receitas} atual={t.receitas} melhorSubir vs={vs} />}
-          realizado={t.receitas ? { pct: (t.recebido / t.receitas) * 100, texto: <><Money value={t.recebido} /> recebido</> } : undefined}
-        />
-        <Kpi
-          label="Despesas"
-          value={t.despesas}
-          icon={ArrowDownCircle}
-          tone="red"
-          href="/despesas"
-          variacao={<Variacao pct={resumo.variacao.despesas} atual={t.despesas} melhorSubir={false} vs={vs} />}
-          realizado={t.despesas ? { pct: (t.pago / t.despesas) * 100, texto: <><Money value={t.pago} /> pago ou no cartão</> } : undefined}
-        />
-        <Kpi
-          label="Resultado"
-          value={t.saldo}
-          icon={Scale}
-          tone={t.saldo >= 0 ? "green" : "red"}
-          href="/relatorios"
-          variacao={<VariacaoValor diff={resumo.variacao.resultado} vs={vs} temBase={!!(resumo.anterior.receitas || resumo.anterior.despesas)} />}
-          rodape="receitas − despesas (sem transferências e pagamentos de fatura)"
-        />
-        <Kpi
-          label="A receber"
-          value={v.receber.total}
-          icon={PiggyBank}
-          tone="green"
-          href="/a-receber"
-          rodape={
-            <>
-              {v.receber.quantidade ? `${v.receber.quantidade} ${v.receber.quantidade === 1 ? "lançamento pendente" : "lançamentos pendentes"} no período` : "nada pendente no período"}
-              {v.receber.emAtraso > 0 && (
-                <span className="block text-rose-600 dark:text-rose-400"><Money value={v.receber.emAtraso} /> já venceu</span>
+          {!empty && (
+            <div className="grid grid-cols-2 gap-3">
+              <Indicador
+                label="Patrimônio líquido"
+                valor={valor(s.patrimonio)}
+                negativo={!oculto && s.patrimonio < 0}
+                hint={s.dividas ? `${valor(s.ativos)} em contas − ${valor(s.dividas)} em dívidas` : "contas, sem dívidas registradas"}
+                href="/relatorios"
+              />
+              {v.previsao ? (
+                <Indicador label="Fechamento previsto" valor={valor(v.previsao.end)} negativo={!oculto && v.previsao.end < 0} hint={`saldo disponível em ${ate}`} />
+              ) : (
+                <Indicador label="Fechamento previsto" valor="—" negativo={false} hint="cadastre uma conta" />
               )}
-              {v.receber.atrasadoAntes > 0 && (
-                <span className="block text-amber-700 dark:text-amber-300">
-                  + <Money value={v.receber.atrasadoAntes} /> em atraso de antes
-                </span>
-              )}
-            </>
-          }
-        />
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardTitle sub={`Saldo disponível de hoje até ${ate} com contas, recebimentos e faturas pendentes`}>Previsão até o fim do mês</CardTitle>
-          {v.previsao ? <Previsao f={v.previsao} ate={ate} ocultar={ocultar} /> : <EmptyState title="Cadastre suas contas para ver a previsão" />}
-        </Card>
-        <Card>
-          <CardTitle sub="Em atraso e nos próximos 7 dias" action={<Link href="/a-pagar" className="text-xs font-medium text-brand-700 hover:underline dark:text-brand-400">Ver tudo</Link>}>
-            Vencimentos
-          </CardTitle>
-          <Vencimentos due={v.due} forms={forms} />
-        </Card>
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardTitle sub={p.period === "ano" ? "Por mês do ano" : "Últimos 6 meses, por mês"}>Receitas x despesas</CardTitle>
-          {v.monthly.some((m) => m.receitas || m.despesas) ? <IncomeExpenseChart data={v.monthly} /> : <EmptyState title="Sem lançamentos nesses meses" />}
-        </Card>
-        <Card>
-          <CardTitle sub={`${p.title} · compras no cartão incluídas`}>Gastos por categoria</CardTitle>
-          {v.cats.length ? <CategoryDonut data={v.cats} /> : <EmptyState title="Nenhuma despesa no período" />}
-        </Card>
-      </div>
-
-      <h2 className="mb-2 mt-6 text-[15px] font-semibold tracking-tight">Compromissos e crédito</h2>
-      <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-3">
-        <Stat label="A pagar no período" value={v.pagar.total} icon={Receipt} tone="amber" href="/a-pagar" sub="contas e faturas" />
-        <Stat label="Vencidas" value={sum(v.overdue.map((o) => o.amount))} icon={AlertTriangle} tone="red" href="/a-pagar" sub={`${v.overdue.length} em atraso`} />
-        <Stat label="Próximos 30 dias" value={sum(v.future.map((f) => f.amount))} icon={CalendarClock} tone="amber" href="/calendario" sub="despesas futuras" />
-        <Stat label="Limite disponível" value={sum(v.usages.map((u) => u.available))} icon={CreditCard} tone="violet" href="/cartoes" sub={`de ${v.cards.length} cartões`} />
-        <Stat label="Faturas em aberto" value={sum(v.openInvoices.map((i) => i.remaining))} icon={CreditCard} tone="violet" href="/cartoes" sub={`${v.openInvoices.length} faturas`} />
-        <Stat label="Total das dívidas" value={v.loanDebt + v.cardDebt} icon={Landmark} tone="red" href="/dividas" sub={<>empréstimos <Money value={v.loanDebt} /></>} />
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-3">
-          <CardTitle sub="Últimos 12 meses: contas − cartões − empréstimos" action={<TrendingUp className="size-4 text-slate-400" aria-hidden />}>Evolução do patrimônio</CardTitle>
-          <LineMoneyChart data={v.worth} lines={[{ key: "patrimonio", name: "Patrimônio", color: C.navy }, { key: "dividas", name: "Dívidas", color: C.expense, dashed: true }]} />
-        </Card>
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <Card>
-          <CardTitle sub="Dinheiro que entrou e saiu das contas (faturas incluídas, transferências não)">Fluxo de caixa</CardTitle>
-          <CashFlowChart data={v.flow} />
-        </Card>
-        <Card>
-          <CardTitle sub="Receitas − despesas de cada mês, últimos 12 meses">Evolução financeira mensal</CardTitle>
-          <AreaMoneyChart data={v.evolution} dataKey="saldo" name="Saldo do mês" zeroLine />
-        </Card>
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardTitle sub="Maiores categorias do período contra o período anterior">Comparativo entre períodos</CardTitle>
-          {v.comparison.length ? <HorizontalBars data={v.comparison} /> : <EmptyState title="Sem despesas para comparar" />}
-        </Card>
-        <div className="space-y-5">
-          {v.budgets.length > 0 && (
-            <Card>
-              <CardTitle action={<Link href="/planejamento" className="text-xs font-medium text-brand-700 hover:underline dark:text-brand-400">Orçamento</Link>}>Alertas de orçamento</CardTitle>
-              <ul className="space-y-3">
-                {v.budgets.slice(0, 4).map((b) => (
-                  <li key={b.budget.id}>
-                    <div className="mb-1 flex justify-between text-sm">
-                      <span>{b.category?.name}</span>
-                      <span className={cx("tabular text-xs", b.level === "estourado" ? "text-rose-600" : "text-amber-600")}>{Math.round(b.pct)}%</span>
-                    </div>
-                    <Progress value={b.pct} />
-                  </li>
-                ))}
-              </ul>
-            </Card>
+            </div>
           )}
-          {v.insights.map((i) => (
-            <InsightCard key={i.id} insight={i} compact />
-          ))}
-          {!v.budgets.length && !v.insights.length && (
-            <Card>
-              <CardTitle>Inteligência financeira</CardTitle>
-              <p className="text-sm text-slate-500">As análises aparecem conforme você registra lançamentos.</p>
-              <Link href="/inteligencia" className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline dark:text-brand-400">Abrir</Link>
-            </Card>
+
+          {/* receitas e despesas do período */}
+          <Superficie label="Receitas e despesas">
+            <Titulo sub="Inclui o que ainda está previsto">Receitas e despesas</Titulo>
+            <div className="grid grid-cols-2 gap-4">
+              <Link href="/receitas" aria-label="Receitas" className="min-w-0 rounded-xl">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <span className="size-2 rounded-full bg-brand-500 dark:bg-brand-400" />Receitas
+                </p>
+                <Money value={t.receitas} className="mt-1 block text-xl font-semibold tracking-tight" />
+                <div className="mt-1 min-h-5"><Variacao pct={resumo.variacao.receitas} atual={t.receitas} melhorSubir vs={vs} /></div>
+                {t.receitas > 0 && (
+                  <div className="mt-2">
+                    <Progress value={(t.recebido / t.receitas) * 100} tone="navy" />
+                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400"><Money value={t.recebido} /> recebido</p>
+                  </div>
+                )}
+              </Link>
+              <Link href="/despesas" aria-label="Despesas" className="min-w-0 rounded-xl">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <span className="size-2 rounded-full bg-rose-500 dark:bg-rose-400" />Despesas
+                </p>
+                <Money value={t.despesas} className="mt-1 block text-xl font-semibold tracking-tight" />
+                <div className="mt-1 min-h-5"><Variacao pct={resumo.variacao.despesas} atual={t.despesas} melhorSubir={false} vs={vs} /></div>
+                {t.despesas > 0 && (
+                  <div className="mt-2">
+                    <Progress value={(t.pago / t.despesas) * 100} tone="navy" />
+                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400"><Money value={t.pago} /> pago ou no cartão</p>
+                  </div>
+                )}
+              </Link>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 pt-3 dark:border-white/[0.06]">
+              <Link href="/relatorios" aria-label="Resultado" className="min-w-0 rounded-xl">
+                <p className="text-xs text-slate-500 dark:text-slate-400">Resultado</p>
+                <Money value={t.saldo} signed colored className="mt-0.5 block text-base font-semibold" />
+                <div className="mt-0.5"><VariacaoValor diff={resumo.variacao.resultado} vs={vs} temBase={!!(resumo.anterior.receitas || resumo.anterior.despesas)} /></div>
+              </Link>
+              <Link href="/a-receber" aria-label="A receber" className="min-w-0 rounded-xl">
+                <p className="text-xs text-slate-500 dark:text-slate-400">A receber</p>
+                <Money value={v.receber.total} className="mt-0.5 block text-base font-semibold" />
+                <p className="mt-0.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400">
+                  {v.receber.quantidade ? `${v.receber.quantidade} ${v.receber.quantidade === 1 ? "pendente" : "pendentes"}` : "nada pendente"}
+                  {v.receber.emAtraso > 0 && <span className="block text-rose-600 dark:text-rose-400"><Money value={v.receber.emAtraso} /> já venceu</span>}
+                  {v.receber.atrasadoAntes > 0 && <span className="block text-amber-700 dark:text-amber-300">+ <Money value={v.receber.atrasadoAntes} /> em atraso de antes</span>}
+                </p>
+              </Link>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setMaisIndicadores((x) => !x)}
+              aria-expanded={maisIndicadores}
+              className="-mb-1 mt-3 flex w-full items-center justify-center gap-1 rounded-xl py-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            >
+              {maisIndicadores ? "Menos indicadores" : "Mais indicadores"}
+              <ChevronDown className={cx("size-3.5 transition-transform", maisIndicadores && "rotate-180")} />
+            </button>
+            {maisIndicadores && (
+              <ul className="mt-2 animate-in border-t border-slate-100 pt-2 dark:border-white/[0.06]">
+                <LinhaIndicador label="A pagar no período" value={v.pagar.total} sub="contas e faturas" href="/a-pagar" tone="amber" icon={ArrowDownCircle} />
+                <LinhaIndicador label="Vencidas" value={sum(v.overdue.map((o) => o.amount))} sub={`${v.overdue.length} em atraso`} href="/a-pagar" tone="red" icon={AlertTriangle} />
+                <LinhaIndicador label="Próximos 30 dias" value={sum(v.future.map((f) => f.amount))} sub="despesas futuras" href="/calendario" tone="amber" icon={CalendarClock} />
+                <LinhaIndicador label="Limite disponível" value={sum(v.usages.map((u) => u.available))} sub={`de ${v.cards.length} cartões`} href="/cartoes" tone="violet" icon={CreditCard} />
+                <LinhaIndicador label="Faturas em aberto" value={sum(v.openInvoices.map((i) => i.remaining))} sub={`${v.openInvoices.length} faturas`} href="/cartoes" tone="violet" icon={CreditCard} />
+                <LinhaIndicador label="Total das dívidas" value={v.loanDebt + v.cardDebt} sub={<>empréstimos <Money value={v.loanDebt} /></>} href="/dividas" tone="red" icon={Landmark} />
+              </ul>
+            )}
+          </Superficie>
+
+          {/* vencimentos: só quando há algo vencido ou vencendo */}
+          {temVenc && (
+            <Superficie label="Vencimentos" className="!py-3">
+              <button type="button" onClick={() => setVencAberto((x) => !x)} aria-expanded={vencAberto} className="flex w-full items-center gap-3 text-left">
+                <IconTile icon={v.due.atrasados.length ? AlertTriangle : CalendarClock} tone={v.due.atrasados.length ? "red" : "amber"} className="size-9" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">Vencimentos</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {v.due.atrasados.length > 0 && <span className="text-rose-600 dark:text-rose-400">{v.due.atrasados.length} em atraso</span>}
+                    {v.due.atrasados.length > 0 && v.due.proximos.length > 0 && " · "}
+                    {v.due.proximos.length > 0 && `${v.due.proximos.length} nos próximos 7 dias`}
+                  </p>
+                </div>
+                <ChevronDown className={cx("size-4 shrink-0 text-slate-400 transition-transform", vencAberto && "rotate-180")} />
+              </button>
+              {vencAberto && (
+                <div className="mt-3 animate-in border-t border-slate-100 pt-3 dark:border-white/[0.06]">
+                  <Vencimentos due={v.due} forms={forms} />
+                  <div className="mt-2 flex justify-end"><LinkSecao href="/a-pagar">Ver tudo</LinkSecao></div>
+                </div>
+              )}
+            </Superficie>
+          )}
+
+          {/* fluxo financeiro: todos os gráficos em abas */}
+          <Superficie label="Fluxo financeiro">
+            <Titulo sub={abaAtual.sub}>Fluxo financeiro</Titulo>
+            <Segmented value={aba} onChange={setAba} options={abas.map((a) => ({ value: a.value, label: a.label }))} className="mb-4 w-full !rounded-xl" sutil />
+            {aba === "mensal" && (v.monthly.some((m) => m.receitas || m.despesas) ? <IncomeExpenseChart data={v.monthly} /> : <EmptyState title="Sem lançamentos nesses meses" />)}
+            {aba === "previsao" && (v.previsao ? <Previsao f={v.previsao} ate={ate} ocultar={ocultar} /> : <EmptyState title="Cadastre suas contas para ver a previsão" />)}
+            {aba === "categorias" && (v.cats.length ? <CategoryDonut data={v.cats} /> : <EmptyState title="Nenhuma despesa no período" />)}
+            {aba === "patrimonio" && (
+              <LineMoneyChart data={v.worth} lines={[{ key: "patrimonio", name: "Patrimônio", color: C.navy }, { key: "dividas", name: "Dívidas", color: C.expense, dashed: true }]} />
+            )}
+            {aba === "caixa" && <CashFlowChart data={v.flow} />}
+            {aba === "evolucao" && <AreaMoneyChart data={v.evolution} dataKey="saldo" name="Saldo do mês" zeroLine />}
+            {aba === "comparativo" && (v.comparison.length ? <HorizontalBars data={v.comparison} /> : <EmptyState title="Sem despesas para comparar" />)}
+          </Superficie>
+        </div>
+
+        {/* coluna lateral (no celular, continua abaixo) */}
+        <div className="stagger min-w-0 space-y-4">
+          <Superficie label="Contas">
+            <Titulo acao={<LinkSecao href="/contas">Gerenciar</LinkSecao>}>Contas</Titulo>
+            {s.contas.length ? (
+              <ul className="-my-1 divide-y divide-slate-100 dark:divide-white/[0.05]">
+                {s.contas.map((a) => {
+                  const Icone = ICONE_CONTA[a.type] ?? Wallet;
+                  return (
+                    <li key={a.id}>
+                      <Link href={`/contas/${a.id}`} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-white/[0.03]">
+                        <span className="relative flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/[0.05] dark:text-slate-300">
+                          <Icone className="size-4" strokeWidth={2} />
+                          <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full ring-2 ring-white dark:ring-navy-900" style={{ background: a.color }} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{a.name}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">{ACCOUNT_TYPE_LABEL[a.type]}</p>
+                        </div>
+                        <span className={cx("money shrink-0 text-sm font-semibold", !oculto && a.saldo < 0 && "text-rose-600 dark:text-rose-400")}>{valor(a.saldo)}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="py-2 text-center">
+                <p className="text-sm text-slate-500 dark:text-slate-400">Nenhuma conta cadastrada.</p>
+                <Button size="sm" variant="secondary" className="mt-2" onClick={() => forms.openAccount()}>Cadastrar conta</Button>
+              </div>
+            )}
+          </Superficie>
+
+          <Superficie label="Últimas movimentações">
+            <Titulo acao={<LinkSecao href="/despesas">Ver todas</LinkSecao>}>Últimas movimentações</Titulo>
+            {v.ultimas.length ? (
+              <ul className="-my-1 divide-y divide-slate-100 dark:divide-white/[0.05]">
+                {v.ultimas.map((e) => {
+                  const cat = e.category_id ? catPorId.get(e.category_id) : null;
+                  return (
+                    <li key={`${e.source}-${e.id}`} className="flex items-center gap-3 py-2.5">
+                      <CategoryIcon category={cat} kind={e.type} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{e.description}</p>
+                        <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                          {formatBR(e.date).slice(0, 5)} · {cat?.name ?? "Sem categoria"}{e.source === "cartao" ? " · cartão" : ""}
+                        </p>
+                      </div>
+                      <Money value={e.type === "receita" ? e.amount : -e.amount} signed colored className="shrink-0 text-sm font-semibold" />
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="py-2 text-center text-sm text-slate-500 dark:text-slate-400">Nada pago ou recebido ainda.</p>
+            )}
+          </Superficie>
+
+          {(v.budgets.length > 0 || v.insights.length > 0) && (
+            <Superficie label="Alertas">
+              <Titulo acao={<LinkSecao href="/inteligencia">Abrir</LinkSecao>}>Alertas</Titulo>
+              {v.budgets.length > 0 && (
+                <ul className="mb-3 space-y-3">
+                  {v.budgets.slice(0, 4).map((b) => (
+                    <li key={b.budget.id}>
+                      <div className="mb-1 flex justify-between text-sm">
+                        <span>{b.category?.name}</span>
+                        <span className={cx("tabular text-xs", b.level === "estourado" ? "text-rose-600" : "text-amber-600")}>{Math.round(b.pct)}%</span>
+                      </div>
+                      <Progress value={b.pct} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="space-y-3">
+                {v.insights.map((i) => <InsightCard key={i.id} insight={i} bare />)}
+              </div>
+            </Superficie>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 import { useState, type ReactNode } from "react";
-import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, CreditCard, MoreVertical, Pencil, Repeat, RotateCcw, Trash2 } from "lucide-react";
+import { ArrowLeftRight, Check, ChevronDown, ChevronLeft, ChevronRight, CreditCard, MoreVertical, Pencil, Repeat, RotateCcw, Trash2 } from "lucide-react";
 import { categoryLabel, useFinance } from "@/lib/store";
 import type { Transaction } from "@/lib/types";
 import { formatBR, PERIOD_LABEL, periodRange, periodTitle, type Period } from "@/lib/finance/dates";
@@ -191,7 +191,37 @@ export function usePeriod(initial: Period = "mes") {
   return { period, setPeriod: (p: Period) => { setPeriod(p); setOffset(0); }, offset, setOffset, range, title: periodTitle(period, range) };
 }
 
-export function PeriodBar({ p, periods = ["semana", "mes", "trimestre", "ano"] }: { p: ReturnType<typeof usePeriod>; periods?: Period[] }) {
+export function PeriodBar({ p, periods = ["semana", "mes", "trimestre", "ano"], compact }: { p: ReturnType<typeof usePeriod>; periods?: Period[]; compact?: boolean }) {
+  if (compact)
+    // uma linha só: ‹ Novembro de 2026 ›  ·  [Mês ▾]
+    return (
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center">
+          <IconButton label="Período anterior" onClick={() => p.setOffset(p.offset - 1)}>
+            <ChevronLeft className="size-[18px]" />
+          </IconButton>
+          <button className="truncate px-1 text-[15px] font-semibold tracking-tight" onClick={() => p.setOffset(0)} title="Voltar para hoje">
+            {p.title}
+          </button>
+          <IconButton label="Próximo período" onClick={() => p.setOffset(p.offset + 1)}>
+            <ChevronRight className="size-[18px]" />
+          </IconButton>
+        </div>
+        <label className="relative shrink-0">
+          <span className="sr-only">Tipo de período</span>
+          <select
+            value={p.period}
+            onChange={(e) => p.setPeriod(e.target.value as Period)}
+            className="h-9 appearance-none rounded-full bg-slate-100 pl-3.5 pr-8 text-[13px] font-medium text-slate-700 outline-none transition focus-visible:ring-2 focus-visible:ring-brand-400 dark:bg-white/[0.06] dark:text-slate-200"
+          >
+            {periods.map((x) => (
+              <option key={x} value={x}>{PERIOD_LABEL[x]}</option>
+            ))}
+          </select>
+          <ChevronDown aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
+        </label>
+      </div>
+    );
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Segmented value={p.period} onChange={p.setPeriod} options={periods.map((x) => ({ value: x, label: PERIOD_LABEL[x] }))} />
