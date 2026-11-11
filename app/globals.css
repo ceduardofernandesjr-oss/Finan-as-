@@ -134,6 +134,10 @@
   --chart-cursor: rgb(255 255 255 / 0.04);
 }
 
+/* o HTML já chega com fundo escuro (layout.tsx); no tema claro o CSS troca */
+html.dark { color-scheme: dark; }
+html:not(.dark) { color-scheme: light; background-color: #f5f7f2 !important; }
+
 html,
 body {
   @apply bg-slate-50 text-slate-900 antialiased dark:bg-navy-950 dark:text-slate-100;

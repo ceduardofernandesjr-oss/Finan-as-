@@ -23,12 +23,14 @@ export const viewport: Viewport = {
 
 // Aplica o tema antes de pintar a tela (sem "piscar"). O escuro é o padrão da identidade visual;
 // quem escolheu o claro no botão de tema continua no claro.
-const themeScript = `(function(){try{var t=localStorage.getItem('tema');var d=t==='claro'?false:t==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;if(d)document.documentElement.classList.add('dark')}catch(e){document.documentElement.classList.add('dark')}try{document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});document.addEventListener('contextmenu',function(e){var t=e.target;if(!(t&&t.closest&&t.closest('input,textarea,select,[contenteditable=true]')))e.preventDefault()})}catch(e){}})()`;
+const themeScript = `(function(){var h=document.documentElement;try{var t=localStorage.getItem('tema');var d=t==='claro'?false:t==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;if(d)h.classList.add('dark')}catch(e){h.classList.add('dark')}try{document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});document.addEventListener('contextmenu',function(e){var t=e.target;if(!(t&&t.closest&&t.closest('input,textarea,select,[contenteditable=true]')))e.preventDefault()})}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    // fundo escuro já no HTML (antes do CSS carregar): sem clarão branco ao abrir o app
+    <html lang="pt-BR" suppressHydrationWarning style={{ backgroundColor: "#080a08" }}>
       <head>
+        <meta name="color-scheme" content="dark light" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
