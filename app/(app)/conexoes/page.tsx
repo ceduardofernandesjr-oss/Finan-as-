@@ -166,7 +166,7 @@ function Mapear({
       <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">Os lançamentos de cada conta do banco entram na conta ou no cartão escolhido aqui. Nada é importado sem você revisar.</p>
       <ul className="space-y-3">
         {resp.accounts.map((a) => (
-          <li key={a.id} className="rounded-2xl p-3 ring-1 ring-slate-200 dark:ring-white/10">
+          <li key={a.id} className="rounded-2xl p-3 ring-1 ring-slate-200 dark:ring-line">
             <div className="mb-2 flex items-center gap-2">
               {a.kind === "cartao" ? <CreditCard className="size-4 text-violet-500" /> : <Wallet className="size-4 text-brand-600 dark:text-brand-400" />}
               <span className="min-w-0 flex-1 truncate text-sm font-medium">{a.name}{a.number ? ` · ${a.number}` : ""}</span>
@@ -282,7 +282,7 @@ function Revisao({ link, inicial, onClose, onDone }: { link: Link; inicial: Suge
         {lista.length} {lista.length === 1 ? "lançamento novo" : "lançamentos novos"}: <b className="text-slate-900 dark:text-white">{importar}</b> para importar e {ignorar} para ignorar.
         Os ignorados não voltam nas próximas sincronizações.
       </p>
-      <ul className="divide-y divide-slate-100 dark:divide-white/[0.06]">
+      <ul className="divide-y divide-slate-100 dark:divide-line/70">
         {lista.map((s) => <LinhaRevisao key={s.tx.id} s={s} onChange={(n) => setLista((l) => l.map((x) => (x.tx.id === n.tx.id ? n : x)))} />)}
       </ul>
     </Modal>
@@ -426,7 +426,7 @@ export default function Conexoes() {
                       {info && "accounts" in info ? nomeBanco(info) : link.institution}
                     </CardTitle>
                     {info && "erro" in info && <p className="mb-3 text-sm text-rose-600 dark:text-rose-400">{info.erro}</p>}
-                    <ul className="divide-y divide-slate-100 dark:divide-white/[0.06]">
+                    <ul className="divide-y divide-slate-100 dark:divide-line/70">
                       {meus.map((m) => {
                         const b = contasBanco.find((a) => a.id === m.external_id);
                         const appAcc = m.account_id ? data.accounts.find((a) => a.id === m.account_id) : null;

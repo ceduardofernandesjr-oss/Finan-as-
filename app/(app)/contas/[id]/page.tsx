@@ -94,7 +94,7 @@ export default function AccountDetail() {
       <Card>
         <p className="mb-2 text-xs text-slate-500">Saldo ao fim do período: <Money value={balanceAtEnd} className="font-semibold" /></p>
         {shown.length ? (
-          <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+          <ul className="divide-y divide-slate-100 dark:divide-line/70">
             {shown.map((r) => (
               <TxRow key={r.tx.id} tx={r.tx} footer={<span className="text-xs text-slate-400">saldo: <Money value={r.balance} /></span>} />
             ))}

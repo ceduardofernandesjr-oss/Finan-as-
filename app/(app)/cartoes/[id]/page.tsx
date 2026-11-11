@@ -146,7 +146,7 @@ export default function CardDetail() {
                           Pagar fatura · <Money value={inv.remaining} />
                         </Button>
                       )}
-                      <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+                      <ul className="divide-y divide-slate-100 dark:divide-line/70">
                         {inv.items.map((it) => {
                           const p = purchasesById.get(it.purchase_id);
                           return (
@@ -180,7 +180,7 @@ export default function CardDetail() {
             <Card>
               <CardTitle sub="Parcelas que vão cair nas próximas faturas">Parcelas futuras</CardTitle>
               {future.length ? (
-                <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+                <ul className="divide-y divide-slate-100 dark:divide-line/70">
                   {Object.entries(
                     future.reduce<Record<string, typeof future>>((acc, i) => ((acc[i.invoice_month] ??= []).push(i), acc), {}),
                   )
@@ -216,7 +216,7 @@ export default function CardDetail() {
                 <Input className="pl-9" placeholder="Buscar compra" value={q} onChange={(e) => setQ(e.target.value)} />
               </div>
               {purchases.length ? (
-                <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+                <ul className="divide-y divide-slate-100 dark:divide-line/70">
                   {purchases.map((p) => (
                     <li key={p.id} className="flex items-center gap-3 py-3">
                       <div className="min-w-0 flex-1">

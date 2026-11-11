@@ -109,7 +109,7 @@ export function CommitmentsPage({ kind }: { kind: "receita" | "despesa" }) {
         <Card>
           <CardTitle sub={`${list.length} itens · ${formatMoney(sum(list.map((c) => c.amount)))}`}>Pendentes</CardTitle>
           {list.length ? (
-            <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+            <ul className="divide-y divide-slate-100 dark:divide-line/70">
               {list.map((c) =>
                 c.tx ? (
                   <TxRow key={c.id} tx={c.tx} />
@@ -150,7 +150,7 @@ export function CommitmentsPage({ kind }: { kind: "receita" | "despesa" }) {
         <Card>
           <CardTitle sub="Lançamentos que se repetem e ainda têm ocorrências pendentes">Contas recorrentes</CardTitle>
           {series.length ? (
-            <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+            <ul className="divide-y divide-slate-100 dark:divide-line/70">
               {series.map((s) => (
                 <li key={s.first.recurrence_id} className="flex items-center gap-3 py-3">
                   <Repeat className="size-4 text-slate-400" />

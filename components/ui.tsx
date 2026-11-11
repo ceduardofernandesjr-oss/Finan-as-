@@ -14,8 +14,8 @@ const VARIANTS: Record<Variant, string> = {
   primary:
     "bg-brand-400 font-semibold text-navy-950 shadow-[var(--shadow-glow)] hover:bg-brand-300",
   secondary:
-    "bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300 dark:bg-navy-800 dark:text-slate-50 dark:ring-line dark:hover:bg-[#232922]",
-  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white",
+    "bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300 dark:bg-navy-800 dark:text-slate-50 dark:ring-line dark:hover:bg-[#1c2217]",
+  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-tint/[0.06] dark:hover:text-white",
   danger: "bg-rose-500 font-semibold text-white hover:bg-rose-600",
   success: "bg-brand-400 font-semibold text-navy-950 hover:bg-brand-300",
 };
@@ -54,7 +54,7 @@ export function IconButton({
       aria-label={label}
       title={label}
       className={cx(
-        "inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-white/[0.06] dark:hover:text-white",
+        "inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-tint/[0.06] dark:hover:text-white",
         "focus-visible:outline-2 focus-visible:outline-brand-400",
         className,
       )}
@@ -69,7 +69,7 @@ export function Card({ className, children, ...rest }: { className?: string; chi
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/80 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70",
+        "rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/80 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/50",
         className,
       )}
       {...rest}
@@ -120,7 +120,7 @@ export function Field({
 }
 
 const inputBase =
-  "w-full rounded-[var(--radius-field)] border border-slate-200 bg-white px-3.5 text-[15px] text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-400/20 disabled:opacity-60 dark:border-line dark:bg-navy-925 dark:text-slate-50 dark:placeholder:text-slate-500 dark:hover:border-[#343a34] dark:focus:border-brand-400 dark:[color-scheme:dark]";
+  "w-full rounded-[var(--radius-field)] border border-slate-200 bg-white px-3.5 text-[15px] text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-400/20 disabled:opacity-60 dark:border-line dark:bg-navy-925 dark:text-slate-50 dark:placeholder:text-slate-500 dark:hover:border-[#2b3524] dark:focus:border-brand-400 dark:[color-scheme:dark]";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...rest },
@@ -184,7 +184,7 @@ export function MoneyInput({
 
 export function Badge({ tone = "slate", children }: { tone?: "slate" | "green" | "red" | "amber" | "blue" | "violet"; children: ReactNode }) {
   const tones = {
-    slate: "bg-slate-100 text-slate-700 dark:bg-white/[0.06] dark:text-slate-300",
+    slate: "bg-slate-100 text-slate-700 dark:bg-tint/[0.06] dark:text-slate-300",
     green: "bg-brand-50 text-brand-700 ring-1 ring-brand-200/60 dark:bg-brand-400/10 dark:text-brand-300 dark:ring-brand-400/20",
     red: "bg-rose-50 text-rose-700 ring-1 ring-rose-200/60 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/20",
     amber: "bg-amber-50 text-amber-800 ring-1 ring-amber-200/60 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20",
@@ -198,7 +198,7 @@ export function Progress({ value, tone }: { value: number; tone?: "green" | "amb
   const t = tone ?? (value > 100 ? "red" : value >= 80 ? "amber" : "green");
   const colors = { green: "bg-brand-500 dark:bg-brand-400", amber: "bg-amber-400", red: "bg-rose-500", navy: "bg-slate-800 dark:bg-slate-300" };
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/[0.06]" role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>
+    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-tint/[0.06]" role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>
       <div className={cx("h-full rounded-full transition-[width] duration-700 ease-out", colors[t])} style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
     </div>
   );
@@ -216,7 +216,7 @@ export function EmptyState({ icon, title, text, action }: { icon?: ReactNode; ti
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cx("animate-pulse rounded-2xl bg-slate-200/70 dark:bg-white/[0.05]", className)} />;
+  return <div className={cx("animate-pulse rounded-2xl bg-slate-200/70 dark:bg-tint/[0.05]", className)} />;
 }
 
 export function Segmented<T extends string>({
@@ -234,7 +234,7 @@ export function Segmented<T extends string>({
   sutil?: boolean;
 }) {
   return (
-    <div role="tablist" className={cx("inline-flex max-w-full overflow-x-auto rounded-xl bg-slate-100 p-1 [scrollbar-width:none] ring-1 ring-slate-200/70 dark:bg-white/[0.04] dark:ring-white/[0.06]", className)}>
+    <div role="tablist" className={cx("inline-flex max-w-full overflow-x-auto rounded-xl bg-slate-100 p-1 [scrollbar-width:none] ring-1 ring-slate-200/70 dark:bg-tint/[0.04] dark:ring-line/60", className)}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -246,7 +246,7 @@ export function Segmented<T extends string>({
             "shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:text-sm",
             value === o.value
               ? sutil
-                ? "bg-white text-slate-900 shadow-sm dark:bg-white/[0.1] dark:text-white"
+                ? "bg-white text-slate-900 shadow-sm dark:bg-tint/[0.1] dark:text-white"
                 : "bg-navy-950 text-brand-400 shadow-sm dark:bg-brand-400 dark:text-navy-950"
               : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white",
           )}
@@ -260,14 +260,14 @@ export function Segmented<T extends string>({
 
 export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: ReactNode }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-200/60 dark:bg-white/[0.03] dark:ring-white/[0.06]">
+    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-200/60 dark:bg-tint/[0.03] dark:ring-line/60">
       <span className="text-sm text-slate-700 dark:text-slate-200">{label}</span>
       <button
         type="button"
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={cx("relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400", checked ? "bg-brand-400" : "bg-slate-300 dark:bg-white/15")}
+        className={cx("relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400", checked ? "bg-brand-400" : "bg-slate-300 dark:bg-tint/20")}
       >
         <span className={cx("absolute top-0.5 size-5 rounded-full shadow transition-all duration-200", checked ? "left-[22px] bg-navy-950" : "left-0.5 bg-white")} />
       </button>

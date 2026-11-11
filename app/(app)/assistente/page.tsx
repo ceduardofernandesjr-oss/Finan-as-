@@ -178,7 +178,7 @@ export default function AssistantPage() {
               <div ref={fim} />
             </div>
             <form
-              className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-10 flex items-end gap-2 rounded-b-2xl border-t border-slate-100 bg-white/95 p-3 backdrop-blur lg:bottom-0 dark:border-navy-800 dark:bg-navy-900/95"
+              className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-10 flex items-end gap-2 rounded-b-2xl border-t border-slate-100 bg-white/95 p-3 backdrop-blur lg:bottom-0 dark:border-line/70 dark:bg-navy-900/95"
               onSubmit={(e) => { e.preventDefault(); enviar(); }}
             >
               <textarea
@@ -189,7 +189,7 @@ export default function AssistantPage() {
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); } }}
                 placeholder='Ex.: "gastei 45 no mercado ontem"'
                 aria-label="Mensagem para o assistente"
-                className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-400/20 dark:border-navy-700 dark:bg-navy-950 dark:border-white/10 dark:focus:border-brand-400"
+                className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-400/20 dark:border-navy-700 dark:bg-navy-950 dark:border-line dark:focus:border-brand-400"
               />
               <Button type="submit" aria-label="Enviar" disabled={!texto.trim()} icon={<Send className="size-4" />} className="h-11 w-11 shrink-0 px-0" />
             </form>
@@ -200,7 +200,7 @@ export default function AssistantPage() {
             <p className="text-sm font-semibold">Atalhos</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {["dicas", "quanto gastei este mês?", "saldo", "quanto gastei mês passado?", "posso gastar 100?", "ajuda"].map((t) => (
-                <button key={t} type="button" onClick={() => enviar(t)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-white/[0.06]">{t}</button>
+                <button key={t} type="button" onClick={() => enviar(t)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-tint/[0.06]">{t}</button>
               ))}
             </div>
           </Card>
@@ -240,7 +240,7 @@ function Exemplos({ onExemplo }: { onExemplo: (t: string) => void }) {
   return (
     <div className="mt-4 flex flex-wrap justify-center gap-2">
       {EXEMPLOS.map((e) => (
-        <button key={e} type="button" onClick={() => onExemplo(e)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-white/[0.06]">{e}</button>
+        <button key={e} type="button" onClick={() => onExemplo(e)} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-200 dark:hover:bg-tint/[0.06]">{e}</button>
       ))}
     </div>
   );
@@ -250,7 +250,7 @@ function Balao({ children, icone }: { children: React.ReactNode; icone?: React.R
   return (
     <div className="flex gap-2.5">
       <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-400/15 text-brand-700 ring-1 ring-brand-400/20 dark:bg-brand-400/10 dark:text-brand-400">{icone ?? <Bot className="size-4" />}</span>
-      <div className="min-w-0 max-w-[92%] flex-1 rounded-2xl rounded-tl-md bg-slate-100/80 px-4 py-3 text-sm dark:bg-white/[0.04] dark:ring-1 dark:ring-white/[0.06]">{children}</div>
+      <div className="min-w-0 max-w-[92%] flex-1 rounded-2xl rounded-tl-md bg-slate-100/80 px-4 py-3 text-sm dark:bg-tint/[0.04] dark:ring-1 dark:ring-line/60">{children}</div>
     </div>
   );
 }
@@ -369,7 +369,7 @@ function Rascunho({ item, hoje, editavel, onChange, onRemover }: { item: DraftEn
         )}
       </div>
       {editavel && editando && (
-        <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 sm:grid-cols-2 dark:border-navy-800">
+        <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 sm:grid-cols-2 dark:border-line/70">
           <Field label="Tipo">
             <Segmented
               value={item.kind === "receita" ? "receita" : item.via === "cartao" ? "cartao" : "despesa"}

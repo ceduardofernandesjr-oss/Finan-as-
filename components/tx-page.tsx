@@ -71,7 +71,7 @@ export function TxPage({ kind }: { kind: "receita" | "despesa" }) {
       </div>
 
       {/* resumo compacto: um bloco só, dividido */}
-      <section aria-label="Resumo" className="mb-4 grid grid-cols-2 overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:grid-cols-4 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70">
+      <section aria-label="Resumo" className="mb-4 grid grid-cols-2 overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:grid-cols-4 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/50">
         {[
           { label: `Total ${isIncome ? "previsto" : "lançado"}`, value: <Money value={total} />, cls: "" },
           { label: isIncome ? "Recebido" : "Pago", value: <Money value={settled} />, cls: "text-brand-700 dark:text-brand-400" },
@@ -86,19 +86,19 @@ export function TxPage({ kind }: { kind: "receita" | "despesa" }) {
               <p className={cx("money mt-0.5 text-[19px] font-bold tracking-tight", x.cls)}>{x.value}</p>
             </div>
           );
-          return "href" in x && x.href ? <Link key={x.label} href={x.href} className="block transition hover:bg-slate-50 dark:hover:bg-white/[0.02]">{corpo}</Link> : <div key={x.label}>{corpo}</div>;
+          return "href" in x && x.href ? <Link key={x.label} href={x.href} className="block transition hover:bg-slate-50 dark:hover:bg-tint/[0.02]">{corpo}</Link> : <div key={x.label}>{corpo}</div>;
         })}
       </section>
 
       {porCategoria.length > 0 && (
-        <section aria-label="Por categoria" className="mb-4 rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70">
+        <section aria-label="Por categoria" className="mb-4 rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/50">
           <p className="mb-3 text-[13px] font-medium text-slate-500 dark:text-slate-400">Por categoria · lançamentos da lista</p>
           <ul className="space-y-2.5">
             {porCategoria.map((c) => (
               <li key={c.id ?? "sem"} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
                 <span className="flex min-w-0 items-center gap-2 text-sm"><span className="size-2 shrink-0 rounded-full" style={{ background: c.color }} /><span className="truncate">{c.nome}</span></span>
                 <span className="money text-sm font-semibold">{formatMoney(c.valor)} <span className="font-normal text-slate-500 dark:text-slate-400">· {Math.round(c.pct)}%</span></span>
-                <span className="col-span-2 h-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/[0.06]">
+                <span className="col-span-2 h-1 overflow-hidden rounded-full bg-slate-100 dark:bg-tint/[0.06]">
                   <span className="block h-full rounded-full" style={{ width: `${Math.max(2, c.pct)}%`, background: c.color }} />
                 </span>
               </li>

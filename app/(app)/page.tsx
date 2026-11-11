@@ -25,7 +25,7 @@ import { InsightCard } from "@/components/insight-card";
 
 type Tone = "navy" | "green" | "red" | "amber" | "violet";
 const TONES: Record<Tone, string> = {
-  navy: "bg-slate-100 text-slate-700 dark:bg-white/[0.06] dark:text-slate-200",
+  navy: "bg-slate-100 text-slate-700 dark:bg-tint/[0.06] dark:text-slate-200",
   green: "bg-brand-50 text-brand-700 dark:bg-brand-400/10 dark:text-brand-400",
   red: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
   amber: "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300",
@@ -43,7 +43,7 @@ function IconTile({ icon: Icon, tone, className }: { icon: typeof Wallet; tone: 
 /** Superfície única do painel: cinza-escuro, sem borda no escuro (sem cartão dentro de cartão). */
 function Superficie({ children, className, label }: { children: React.ReactNode; className?: string; label?: string }) {
   return (
-    <section aria-label={label} className={cx("rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70", className)}>
+    <section aria-label={label} className={cx("rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 sm:p-5 dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/50", className)}>
       {children}
     </section>
   );
@@ -163,7 +163,7 @@ function Previsao({
         ))}
       </dl>
       {oculto ? (
-        <p className="mt-4 rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500 dark:bg-white/[0.03] dark:text-slate-400">Valores ocultos. Toque no olho do saldo para mostrar.</p>
+        <p className="mt-4 rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500 dark:bg-tint/[0.03] dark:text-slate-400">Valores ocultos. Toque no olho do saldo para mostrar.</p>
       ) : (
         <div className="mt-3">
           <AreaMoneyChart data={serie} dataKey="previsto" name="Saldo previsto" height={180} zeroLine={fica} />
@@ -223,7 +223,7 @@ function Vencimentos({ due, forms }: { due: ReturnType<typeof dueSoon>; forms: R
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2 text-xs">
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-white/[0.06]">
+        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-tint/[0.06]">
           A pagar em 7 dias <Money value={due.totalPagarProximos} className="font-semibold" />
         </span>
         {due.totalPagarAtrasado > 0 && (
@@ -240,7 +240,7 @@ function Vencimentos({ due, forms }: { due: ReturnType<typeof dueSoon>; forms: R
       {atrasados.length > 0 && (
         <section>
           <h3 className="text-xs font-semibold uppercase tracking-wide text-rose-600 dark:text-rose-400">Em atraso</h3>
-          <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+          <ul className="divide-y divide-slate-100 dark:divide-line/70">
             {atrasados.map((c) => <LinhaVencimento key={c.id} c={c} forms={forms} />)}
           </ul>
           {resto > 0 && (
@@ -253,7 +253,7 @@ function Vencimentos({ due, forms }: { due: ReturnType<typeof dueSoon>; forms: R
       {proximos.length > 0 && (
         <section>
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Próximos 7 dias</h3>
-          <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+          <ul className="divide-y divide-slate-100 dark:divide-line/70">
             {proximos.map((c) => <LinhaVencimento key={c.id} c={c} forms={forms} />)}
           </ul>
         </section>
@@ -342,7 +342,7 @@ function Indicador({ label, valor, negativo, hint, href }: { label: string; valo
       <p className="mt-0.5 text-xs leading-snug text-slate-500 dark:text-slate-400">{hint}</p>
     </div>
   );
-  return href ? <Link href={href} className="block h-full transition hover:bg-slate-50 dark:hover:bg-white/[0.02]">{corpo}</Link> : corpo;
+  return href ? <Link href={href} className="block h-full transition hover:bg-slate-50 dark:hover:bg-tint/[0.02]">{corpo}</Link> : corpo;
 }
 
 /** Card de receitas ou despesas: ícone de entrada/saída, total e comparação com o período anterior. */
@@ -350,7 +350,7 @@ function CardFluxo({ tipo, valor, pct, vs, realizado, href }: { tipo: "receita" 
   const entrada = tipo === "receita";
   const Icone = entrada ? ArrowDownLeft : ArrowUpRight;
   return (
-    <Link href={href} aria-label={entrada ? "Receitas" : "Despesas"} className="group block min-w-0 rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 transition active:scale-[0.98] dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70 dark:hover:bg-[#181d17]">
+    <Link href={href} aria-label={entrada ? "Receitas" : "Despesas"} className="group block min-w-0 rounded-[var(--radius-card)] bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 transition active:scale-[0.98] dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/50 dark:hover:bg-navy-850">
       <div className="flex items-center gap-2">
         <span className={cx("flex size-8 items-center justify-center rounded-xl", entrada ? "bg-brand-50 text-brand-700 dark:bg-brand-400/12 dark:text-brand-400" : "bg-rose-50 text-rose-600 dark:bg-rose-400/12 dark:text-rose-400")}>
           <Icone className="size-[18px]" strokeWidth={2.3} />
@@ -361,7 +361,7 @@ function CardFluxo({ tipo, valor, pct, vs, realizado, href }: { tipo: "receita" 
       <div className="mt-1 min-h-5"><Variacao pct={pct} atual={valor} melhorSubir={entrada} vs={vs} /></div>
       {valor > 0 && (
         <div className="mt-2.5">
-          <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/[0.06]">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-tint/[0.06]">
             <div className={cx("h-full rounded-full transition-[width] duration-700", entrada ? "bg-brand-500 dark:bg-brand-400" : "bg-rose-500 dark:bg-rose-400")} style={{ width: `${Math.min(100, (realizado / valor) * 100)}%` }} />
           </div>
           <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400"><Money value={realizado} /> {entrada ? "recebido" : "pago ou no cartão"}</p>
@@ -389,7 +389,7 @@ function AvatarConta({ nome, cor }: { nome: string; cor: string }) {
 function LinhaIndicador({ label, value, sub, href, tone = "navy", icon }: { label: string; value: number; sub?: React.ReactNode; href: string; tone?: Tone; icon: typeof Wallet }) {
   return (
     <li>
-      <Link href={href} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-slate-50 dark:hover:bg-white/[0.03]">
+      <Link href={href} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-slate-50 dark:hover:bg-tint/[0.03]">
         <IconTile icon={icon} tone={tone} />
         <div className="min-w-0 flex-1">
           <p className="text-sm">{label}</p>
@@ -532,7 +532,7 @@ export default function Dashboard() {
           {!empty && <Saldo s={s} ocultar={ocultar} />}
 
           {!empty && (
-            <section aria-label="Indicadores" className="grid grid-cols-2 divide-x divide-slate-100 overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 dark:divide-line dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/70">
+            <section aria-label="Indicadores" className="grid grid-cols-2 divide-x divide-slate-100 overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)] ring-1 ring-slate-200/70 dark:divide-line dark:bg-navy-900 dark:shadow-[var(--shadow-card-dark)] dark:ring-line/50">
               <Indicador
                 label="Patrimônio líquido"
                 valor={valor(s.patrimonio)}
@@ -588,7 +588,7 @@ export default function Dashboard() {
               <ChevronDown className={cx("size-3.5 transition-transform", maisIndicadores && "rotate-180")} />
             </button>
             {maisIndicadores && (
-              <ul className="mt-2 animate-in border-t border-slate-100 pt-2 dark:border-white/[0.06]">
+              <ul className="mt-2 animate-in border-t border-slate-100 pt-2 dark:border-line/70">
                 <LinhaIndicador label="A pagar no período" value={v.pagar.total} sub="contas e faturas" href="/a-pagar" tone="amber" icon={ArrowDownCircle} />
                 <LinhaIndicador label="Vencidas" value={sum(v.overdue.map((o) => o.amount))} sub={`${v.overdue.length} em atraso`} href="/a-pagar" tone="red" icon={AlertTriangle} />
                 <LinhaIndicador label="Próximos 30 dias" value={sum(v.future.map((f) => f.amount))} sub="despesas futuras" href="/calendario" tone="amber" icon={CalendarClock} />
@@ -615,7 +615,7 @@ export default function Dashboard() {
                 <ChevronDown className={cx("size-4 shrink-0 text-slate-400 transition-transform", vencAberto && "rotate-180")} />
               </button>
               {vencAberto && (
-                <div className="mt-3 animate-in border-t border-slate-100 pt-3 dark:border-white/[0.06]">
+                <div className="mt-3 animate-in border-t border-slate-100 pt-3 dark:border-line/70">
                   <Vencimentos due={v.due} forms={forms} />
                   <div className="mt-2 flex justify-end"><LinkSecao href="/a-pagar">Ver tudo</LinkSecao></div>
                 </div>
@@ -645,11 +645,11 @@ export default function Dashboard() {
             <Titulo acao={<LinkSecao href="/contas">Gerenciar</LinkSecao>}>Contas</Titulo>
             {s.contas.length ? (
               <>
-              <ul className="-my-1 divide-y divide-slate-100 dark:divide-white/[0.05]">
+              <ul className="-my-1 divide-y divide-slate-100 dark:divide-line/70">
                 {(todasContas ? s.contas : s.contas.slice(0, 3)).map((a) => {
                   return (
                     <li key={a.id}>
-                      <Link href={`/contas/${a.id}`} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-white/[0.03]">
+                      <Link href={`/contas/${a.id}`} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-tint/[0.03]">
                         <AvatarConta nome={a.name} cor={a.color} />
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{a.name}</p>
@@ -680,7 +680,7 @@ export default function Dashboard() {
           <Superficie label="Últimas movimentações">
             <Titulo acao={<LinkSecao href="/despesas">Ver todas</LinkSecao>}>Últimas movimentações</Titulo>
             {v.ultimas.length ? (
-              <ul className="-my-1 divide-y divide-slate-100 dark:divide-white/[0.05]">
+              <ul className="-my-1 divide-y divide-slate-100 dark:divide-line/70">
                 {v.ultimas.map((e) => {
                   const cat = e.category_id ? catPorId.get(e.category_id) : null;
                   return (

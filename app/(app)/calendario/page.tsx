@@ -98,7 +98,7 @@ export default function CalendarPage() {
                   onClick={() => setSelected(sel === d ? null : d)}
                   className={cx(
                     "flex min-h-16 min-w-0 flex-col items-stretch rounded-xl p-1 text-left transition active:scale-95 sm:min-h-20 sm:p-1.5",
-                    sel === d ? "bg-brand-400 font-semibold text-navy-950 shadow-[var(--shadow-glow)]" : "bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.07]",
+                    sel === d ? "bg-brand-400 font-semibold text-navy-950 shadow-[var(--shadow-glow)]" : "bg-slate-50 hover:bg-slate-100 dark:bg-tint/[0.03] dark:hover:bg-tint/[0.07]",
                     d === today && sel !== d && "ring-2 ring-brand-400",
                   )}
                 >
@@ -130,7 +130,7 @@ export default function CalendarPage() {
                 return (
                   <div key={d}>
                     {!sel && <p className="mb-1 text-xs font-semibold text-slate-500">{formatBR(d)}{d === addDays(today, 0) && " · hoje"}</p>}
-                    <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+                    <ul className="divide-y divide-slate-100 dark:divide-line/70">
                       {ev.map((e, i) =>
                         e.kind === "tx" ? (
                           <TxRow key={e.tx.id} tx={e.tx} showDate={false} />

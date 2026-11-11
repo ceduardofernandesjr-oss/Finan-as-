@@ -77,7 +77,7 @@ function Categories() {
     <Card id="categorias" className="scroll-mt-24">
       <CardTitle action={<Button size="sm" onClick={() => forms.openCategory({ kind })} icon={<Plus className="size-4" />}>Categoria</Button>}>Categorias</CardTitle>
       <Segmented className="mb-3" value={kind} onChange={setKind} options={[{ value: "despesa", label: "Despesas" }, { value: "receita", label: "Receitas" }]} />
-      <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+      <ul className="divide-y divide-slate-100 dark:divide-line/70">
         {roots.map((r) => (
           <Fragment key={r.id}>
             <Row c={r} />

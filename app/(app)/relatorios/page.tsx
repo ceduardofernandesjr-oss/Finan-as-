@@ -21,18 +21,18 @@ function Table({ head, rows, total }: { head: string[]; rows: React.ReactNode[][
     <div className="-mx-4 overflow-x-auto sm:mx-0">
       <table className="w-full min-w-[480px] text-sm">
         <thead>
-          <tr className="border-b border-slate-200 text-left text-xs text-slate-500 dark:border-navy-800">
+          <tr className="border-b border-slate-200 text-left text-xs text-slate-500 dark:border-line/70">
             {head.map((h, i) => <th key={h} className={cx("px-4 py-2 font-medium sm:px-2", i > 0 && "text-right")}>{h}</th>)}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
+        <tbody className="divide-y divide-slate-100 dark:divide-line/70">
           {rows.map((r, i) => (
             <tr key={i}>{r.map((c, j) => <td key={j} className={cx("px-4 py-2 sm:px-2", j > 0 && "tabular text-right")}>{c}</td>)}</tr>
           ))}
         </tbody>
         {total && (
           <tfoot>
-            <tr className="border-t border-slate-200 font-semibold dark:border-navy-800">{total.map((c, j) => <td key={j} className={cx("px-4 py-2 sm:px-2", j > 0 && "tabular text-right")}>{c}</td>)}</tr>
+            <tr className="border-t border-slate-200 font-semibold dark:border-line/70">{total.map((c, j) => <td key={j} className={cx("px-4 py-2 sm:px-2", j > 0 && "tabular text-right")}>{c}</td>)}</tr>
           </tfoot>
         )}
       </table>
@@ -111,7 +111,7 @@ export default function ReportsPage() {
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between"><dt>Receitas</dt><dd><Money value={t.receitas} className="font-semibold text-emerald-600 dark:text-brand-400" /></dd></div>
               <div className="flex justify-between"><dt>Despesas</dt><dd><Money value={t.despesas} className="font-semibold text-rose-600" /></dd></div>
-              <div className="flex justify-between border-t border-slate-100 pt-2 dark:border-navy-800"><dt>Saldo</dt><dd><Money value={t.saldo} colored className="font-semibold" /></dd></div>
+              <div className="flex justify-between border-t border-slate-100 pt-2 dark:border-line/70"><dt>Saldo</dt><dd><Money value={t.saldo} colored className="font-semibold" /></dd></div>
               <div className="flex justify-between text-slate-500"><dt>Taxa de economia</dt><dd>{t.receitas ? formatPct(pct(t.saldo, t.receitas), 1) : "—"}</dd></div>
               <div className="flex justify-between text-slate-500"><dt>Já recebido</dt><dd><Money value={t.recebido} /></dd></div>
               <div className="flex justify-between text-slate-500"><dt>Já pago (ou no cartão)</dt><dd><Money value={t.pago} /></dd></div>
@@ -213,7 +213,7 @@ export default function ReportsPage() {
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between"><dt>Empréstimos (saldo devedor)</dt><dd><Money value={loanDebt} className="font-semibold" /></dd></div>
               <div className="flex justify-between"><dt>Cartões (comprometido)</dt><dd><Money value={cardDebt} className="font-semibold" /></dd></div>
-              <div className="flex justify-between border-t border-slate-100 pt-2 dark:border-navy-800"><dt>Total</dt><dd><Money value={loanDebt + cardDebt} className="font-semibold text-rose-600" /></dd></div>
+              <div className="flex justify-between border-t border-slate-100 pt-2 dark:border-line/70"><dt>Total</dt><dd><Money value={loanDebt + cardDebt} className="font-semibold text-rose-600" /></dd></div>
               <div className="flex justify-between text-slate-500"><dt>Parcelas de empréstimo/mês</dt><dd><Money value={monthlyLoan} /></dd></div>
               <div className="flex justify-between text-slate-500"><dt>Receita média mensal</dt><dd><Money value={Math.round(avgIncome)} /></dd></div>
             </dl>

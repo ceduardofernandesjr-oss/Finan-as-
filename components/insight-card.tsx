@@ -7,7 +7,7 @@ export function InsightCard({ insight, compact, bare }: { insight: Insight; comp
     positivo: { icon: CheckCircle2, cls: "text-brand-700 bg-brand-50 ring-1 ring-brand-200/70 dark:text-brand-400 dark:bg-brand-400/10 dark:ring-brand-400/20" },
     alerta: { icon: AlertTriangle, cls: "text-amber-600 bg-amber-50 ring-1 ring-amber-200/70 dark:text-amber-300 dark:bg-amber-400/10 dark:ring-amber-400/20" },
     perigo: { icon: OctagonAlert, cls: "text-rose-600 bg-rose-50 ring-1 ring-rose-200/70 dark:text-rose-400 dark:bg-rose-500/10 dark:ring-rose-400/20" },
-    info: { icon: Info, cls: "text-slate-700 bg-slate-100 dark:bg-white/[0.06] dark:text-slate-200" },
+    info: { icon: Info, cls: "text-slate-700 bg-slate-100 dark:bg-tint/[0.06] dark:text-slate-200" },
   }[insight.tone];
   const Icon = map.icon;
   if (bare)

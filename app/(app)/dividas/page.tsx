@@ -120,7 +120,7 @@ export default function DebtsPage() {
                 {open === s.loan.id ? "Ocultar parcelas" : "Ver parcelas"}
               </button>
               {open === s.loan.id && (
-                <ul className="mt-2 divide-y divide-slate-100 dark:divide-navy-800">
+                <ul className="mt-2 divide-y divide-slate-100 dark:divide-line/70">
                   {s.installments.map((t) => <TxRow key={t.id} tx={t} />)}
                 </ul>
               )}
@@ -132,7 +132,7 @@ export default function DebtsPage() {
       {cards.length > 0 && (
         <Card className="mt-5">
           <CardTitle sub="Faturas em aberto e parcelas futuras ainda não pagas">Cartões de crédito</CardTitle>
-          <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+          <ul className="divide-y divide-slate-100 dark:divide-line/70">
             {cards.map(({ card, used }) => (
               <li key={card.id} className="flex items-center justify-between py-2.5 text-sm">
                 <span>{card.name}</span>

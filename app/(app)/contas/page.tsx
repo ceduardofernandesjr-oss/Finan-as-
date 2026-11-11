@@ -48,7 +48,7 @@ export default function AccountsPage() {
           {byType.length > 1 && (
             <div className="mb-4 flex flex-wrap gap-2">
               {byType.map(([t, v]) => (
-                <span key={t} className="rounded-full bg-white px-3 py-1.5 text-xs ring-1 ring-slate-200 dark:bg-navy-900 dark:ring-navy-800">
+                <span key={t} className="rounded-full bg-white px-3 py-1.5 text-xs ring-1 ring-slate-200 dark:bg-navy-900 dark:ring-line/60">
                   {ACCOUNT_TYPE_LABEL[t as keyof typeof ACCOUNT_TYPE_LABEL]}: <Money value={v} className="font-semibold" />
                 </span>
               ))}

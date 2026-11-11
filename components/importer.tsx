@@ -115,12 +115,12 @@ export function Importer() {
           <div className="self-end"><Toggle checked={paid} onChange={setPaid} label="Já foram pagas/recebidas" /></div>
         </div>
         {dupes.size > 0 && <p className="mt-3 text-xs text-amber-700">{dupes.size} linhas parecem já estar cadastradas e foram desmarcadas.</p>}
-        <div className="mt-3 max-h-80 overflow-auto rounded-xl ring-1 ring-slate-200 dark:ring-navy-800">
+        <div className="mt-3 max-h-80 overflow-auto rounded-xl ring-1 ring-slate-200 dark:ring-line/60">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-slate-50 text-xs text-slate-500 dark:bg-navy-950">
               <tr><th className="w-8 p-2" /><th className="p-2 text-left">Data</th><th className="p-2 text-left">Descrição</th><th className="p-2 text-left">Categoria</th><th className="p-2 text-right">Valor</th></tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-navy-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-line/70">
               {rows.slice(0, 1000).map((r) => (
                 <tr key={r.index} className={cx(r.error && "bg-rose-50/60 dark:bg-rose-500/10")}>
                   <td className="p-2">

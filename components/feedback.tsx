@@ -38,11 +38,11 @@ export function Modal({
       <div
         ref={ref}
         className={cx(
-          "relative flex max-h-[92dvh] w-full animate-sheet flex-col rounded-t-[2rem] bg-white shadow-2xl ring-1 ring-slate-200 sm:rounded-[1.75rem] dark:bg-navy-900 dark:ring-white/10",
+          "relative flex max-h-[92dvh] w-full animate-sheet flex-col rounded-t-[2rem] bg-white shadow-2xl ring-1 ring-slate-200 sm:rounded-[1.75rem] dark:bg-navy-900 dark:ring-line",
           size === "lg" ? "sm:max-w-3xl" : "sm:max-w-lg",
         )}
       >
-        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4 dark:border-white/[0.06]">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-4 dark:border-line/70">
           <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
           <IconButton label="Fechar" onClick={onClose}>
             <X className="size-5" />
@@ -50,7 +50,7 @@ export function Modal({
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-2 border-t border-slate-100 px-5 py-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))] dark:border-white/[0.06]">
+          <div className="flex justify-end gap-2 border-t border-slate-100 px-5 py-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))] dark:border-line/70">
             {footer}
           </div>
         )}
@@ -111,7 +111,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
               "pointer-events-auto flex max-w-md animate-pop items-start gap-2.5 rounded-2xl px-4 py-3 text-sm font-medium shadow-2xl ring-1 backdrop-blur",
               t.tone === "success" && "bg-navy-950/95 text-white ring-brand-400/40 dark:bg-navy-900/95",
               t.tone === "error" && "bg-white/95 text-slate-900 ring-rose-300 dark:bg-navy-900/95 dark:text-white dark:ring-rose-500/40",
-              t.tone === "info" && "bg-white/95 text-slate-900 ring-slate-200 dark:bg-navy-900/95 dark:text-white dark:ring-white/10",
+              t.tone === "info" && "bg-white/95 text-slate-900 ring-slate-200 dark:bg-navy-900/95 dark:text-white dark:ring-line",
             )}
           >
             {t.tone === "success" && <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand-400" />}

@@ -8,8 +8,8 @@
   --font-sans: "Inter Variable", "Inter", "SF Pro Display", -apple-system, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* ===== Design system Finanças =====
-     PREMIUM DARK FINTECH + LIME ACCENT
-     Fundos #080A08 / #101310 · superfícies #151914 / #1C211B · bordas #272D25
+     PREMIUM DARK FINTECH + LIME ACCENT (escuro profundo, superfícies em preto esverdeado)
+     Fundo #050605 · cards #0C0F0B · cards secundários #11150F · superfícies elevadas #171C13 · bordas #20271B
      Limão #B7F500 / #93C900 / #D5FF69 · textos #F4F5F2 / #A0A59B / #70766D
      Semânticas: receitas #B7F500 · despesas #F16B78 · informação #6EA8FE · alerta #F4B740 · sucesso #8DDC73 */
 
@@ -21,11 +21,12 @@
   --color-navy-400: #6e756d;
   --color-navy-500: #4b524b;
   --color-navy-600: #343a34;
-  --color-navy-700: #272d25;
-  --color-navy-800: #1c211b;
-  --color-navy-900: #151914;
-  --color-navy-925: #101310;
-  --color-navy-950: #080a08;
+  --color-navy-700: #20271b;
+  --color-navy-800: #171c13;
+  --color-navy-850: #11150f;
+  --color-navy-900: #0c0f0b;
+  --color-navy-925: #090b08;
+  --color-navy-950: #050605;
 
   /* cinzas de texto com leve tom verde (cinza médio da marca = 500) */
   --color-slate-50: #f4f5f2;
@@ -100,7 +101,9 @@
   --color-blue-400: #6ea8fe;
   --color-blue-500: #4d8ff5;
   --color-success: #8ddc73;
-  --color-line: #272d25;
+  --color-line: #20271b;
+  /* realce esverdeado para fundos translúcidos no escuro (em vez de branco, que acinzenta) */
+  --color-tint: #a7c47a;
 
   --color-income: #b7f500;
   --color-expense: #f16b78;
@@ -109,7 +112,7 @@
   --radius-button: 1rem; /* 16px */
   --radius-field: 0.875rem; /* 14px */
   --shadow-card: 0 1px 2px rgb(8 10 8 / 0.04), 0 10px 28px -14px rgb(8 10 8 / 0.18);
-  --shadow-card-dark: inset 0 1px 0 rgb(255 255 255 / 0.03), 0 12px 32px -20px rgb(0 0 0 / 0.8);
+  --shadow-card-dark: inset 0 1px 0 rgb(183 245 0 / 0.025), 0 14px 34px -22px rgb(0 0 0 / 0.95);
   --shadow-glow: 0 8px 22px -10px rgb(183 245 0 / 0.5);
 
   --animate-in: fade-up 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -145,10 +148,10 @@
   --chart-income: #b7f500;
   --chart-expense: #f16b78;
   --chart-primary: #b7f500;
-  --chart-primary-soft: #343a34;
-  --chart-grid: rgb(255 255 255 / 0.05);
+  --chart-primary-soft: #2a3323;
+  --chart-grid: rgb(167 196 122 / 0.07);
   --chart-axis: #70766d;
-  --chart-cursor: rgb(255 255 255 / 0.04);
+  --chart-cursor: rgb(167 196 122 / 0.05);
 }
 
 /* o HTML já chega com fundo escuro (layout.tsx); no tema claro o CSS troca */
@@ -174,7 +177,7 @@ body {
 /* brilho verde muito sutil no fundo escuro: dá profundidade sem poluir */
 .dark body {
   background-image:
-    radial-gradient(900px 420px at 100% -12%, rgb(183 245 0 / 0.045), transparent 60%);
+    radial-gradient(900px 420px at 100% -12%, rgb(183 245 0 / 0.035), transparent 60%);
   background-attachment: fixed;
 }
 ::selection {
@@ -183,9 +186,9 @@ body {
 }
 /* rolagem discreta no tema escuro */
 .dark ::-webkit-scrollbar { width: 10px; height: 10px; }
-.dark ::-webkit-scrollbar-thumb { background: #272d25; border-radius: 999px; border: 3px solid #080a08; }
+.dark ::-webkit-scrollbar-thumb { background: #20271b; border-radius: 999px; border: 3px solid #050605; }
 .dark ::-webkit-scrollbar-track { background: transparent; }
-.dark { scrollbar-color: #272d25 transparent; }
+.dark { scrollbar-color: #20271b transparent; }
 
 /* números financeiros: algarismos de mesma largura e um pouco mais justos */
 .money {

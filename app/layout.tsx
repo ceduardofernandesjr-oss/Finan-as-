@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#080a08",
+  themeColor: "#050605",
   width: "device-width",
   initialScale: 1,
   // comportamento de app: sem zoom de pinça nem de toque duplo
@@ -28,7 +28,7 @@ const themeScript = `(function(){var h=document.documentElement;try{var t=localS
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // fundo escuro já no HTML (antes do CSS carregar): sem clarão branco ao abrir o app
-    <html lang="pt-BR" suppressHydrationWarning style={{ backgroundColor: "#080a08" }}>
+    <html lang="pt-BR" suppressHydrationWarning style={{ backgroundColor: "#050605" }}>
       <head>
         <meta name="color-scheme" content="dark light" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

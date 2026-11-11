@@ -49,7 +49,7 @@ function LoanSim() {
           <Segmented value={system} onChange={setSystem} options={[{ value: "price", label: "Price (parcela fixa)" }, { value: "sac", label: "SAC (decrescente)" }]} />
         </div>
         {rows.length > 0 && (
-          <div className="mt-4 border-t border-slate-100 pt-3 dark:border-navy-800">
+          <div className="mt-4 border-t border-slate-100 pt-3 dark:border-line/70">
             <Row label={system === "price" ? "Parcela" : "1ª parcela"} value={formatMoney(rows[0].payment)} strong />
             {system === "sac" && <Row label="Última parcela" value={formatMoney(rows.at(-1)!.payment)} />}
             <Row label="Total pago" value={formatMoney(total)} />
@@ -70,7 +70,7 @@ function LoanSim() {
                 </thead>
                 <tbody className="tabular">
                   {rows.map((r) => (
-                    <tr key={r.n} className="border-t border-slate-100 dark:border-navy-800">
+                    <tr key={r.n} className="border-t border-slate-100 dark:border-line/70">
                       <td className="py-1">{r.n}</td><td className="text-right">{formatMoney(r.payment)}</td><td className="text-right text-rose-600">{formatMoney(r.interest)}</td><td className="text-right">{formatMoney(r.amortization)}</td><td className="text-right">{formatMoney(r.balance)}</td>
                     </tr>
                   ))}

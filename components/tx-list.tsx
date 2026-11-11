@@ -90,7 +90,7 @@ function RowMenu({ items }: { items: { label: string; icon: ReactNode; onClick: 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div role="menu" className={cx("absolute right-0 z-50 w-48 animate-in rounded-2xl bg-white p-1 shadow-2xl ring-1 ring-slate-200 dark:bg-navy-900 dark:ring-white/10", up ? "bottom-full mb-1" : "top-full mt-1")}>
+          <div role="menu" className={cx("absolute right-0 z-50 w-48 animate-in rounded-2xl bg-white p-1 shadow-2xl ring-1 ring-slate-200 dark:bg-navy-900 dark:ring-line", up ? "bottom-full mb-1" : "top-full mt-1")}>
             {items.map((i) => (
               <button
                 key={i.label}
@@ -100,7 +100,7 @@ function RowMenu({ items }: { items: { label: string; icon: ReactNode; onClick: 
                 }}
                 role="menuitem"
                 className={cx(
-                  "flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-slate-50 active:scale-[0.98] dark:hover:bg-white/[0.06]",
+                  "flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-slate-50 active:scale-[0.98] dark:hover:bg-tint/[0.06]",
                   i.danger && "text-rose-600 dark:text-rose-400",
                 )}
               >
@@ -133,9 +133,9 @@ export function TxRow({ tx, showDate = true, footer }: { tx: Transaction; showDa
   items.push({ label: "Excluir", icon: <Trash2 className="size-4" />, onClick: () => a.del(tx), danger: true });
 
   return (
-    <li className="-mx-2 flex items-center gap-3 rounded-2xl px-2 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.025]">
+    <li className="-mx-2 flex items-center gap-3 rounded-2xl px-2 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-tint/[0.025]">
       {isTransfer || isInvoice ? (
-        <span className={cx("flex size-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset", isTransfer ? "bg-slate-100 text-slate-700 ring-black/5 dark:bg-white/[0.06] dark:text-slate-200 dark:ring-white/10" : "bg-violet-500/10 text-violet-600 ring-violet-500/15 dark:text-violet-300")}>
+        <span className={cx("flex size-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset", isTransfer ? "bg-slate-100 text-slate-700 ring-black/5 dark:bg-tint/[0.06] dark:text-slate-200 dark:ring-line" : "bg-violet-500/10 text-violet-600 ring-violet-500/15 dark:text-violet-300")}>
           {isTransfer ? <ArrowLeftRight className="size-[18px]" strokeWidth={2.1} /> : <CreditCard className="size-[18px]" strokeWidth={2.1} />}
         </span>
       ) : (
@@ -175,7 +175,7 @@ export function TxRow({ tx, showDate = true, footer }: { tx: Transaction; showDa
 export function TxList({ txs, empty }: { txs: Transaction[]; empty?: ReactNode }) {
   if (!txs.length) return <>{empty}</>;
   return (
-    <ul className="divide-y divide-slate-100 dark:divide-navy-800">
+    <ul className="divide-y divide-slate-100 dark:divide-line/70">
       {txs.map((t) => (
         <TxRow key={t.id} tx={t} />
       ))}
@@ -212,7 +212,7 @@ export function PeriodBar({ p, periods = ["semana", "mes", "trimestre", "ano"], 
           <select
             value={p.period}
             onChange={(e) => p.setPeriod(e.target.value as Period)}
-            className="h-9 appearance-none rounded-full bg-slate-100 pl-3.5 pr-8 text-[13px] font-medium text-slate-700 outline-none transition focus-visible:ring-2 focus-visible:ring-brand-400 dark:bg-white/[0.06] dark:text-slate-200"
+            className="h-9 appearance-none rounded-full bg-slate-100 pl-3.5 pr-8 text-[13px] font-medium text-slate-700 outline-none transition focus-visible:ring-2 focus-visible:ring-brand-400 dark:bg-tint/[0.06] dark:text-slate-200"
           >
             {periods.map((x) => (
               <option key={x} value={x}>{PERIOD_LABEL[x]}</option>
@@ -225,7 +225,7 @@ export function PeriodBar({ p, periods = ["semana", "mes", "trimestre", "ano"], 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Segmented value={p.period} onChange={p.setPeriod} options={periods.map((x) => ({ value: x, label: PERIOD_LABEL[x] }))} />
-      <div className="flex items-center rounded-xl bg-white ring-1 ring-slate-200 dark:bg-navy-900 dark:ring-navy-800">
+      <div className="flex items-center rounded-xl bg-white ring-1 ring-slate-200 dark:bg-navy-900 dark:ring-line/60">
         <IconButton label="Período anterior" onClick={() => p.setOffset(p.offset - 1)}>
           <ChevronLeft className="size-4" />
         </IconButton>

@@ -106,13 +106,14 @@ npm test                     # testes das regras financeiras
 
 ## Identidade visual (design system)
 
-Conceito **Premium Dark Fintech + Lime Accent**: base preta, superfícies grafite e verde-limão só em ações principais, seleções, indicadores positivos e destaques. O tema escuro é o padrão; o claro e o automático continuam em Configurações › Aparência.
+Conceito **Premium Dark Fintech + Lime Accent**: preto profundo, superfícies em preto esverdeado (sem cinza) e verde-limão só em ações principais, seleções, indicadores positivos e destaques. O tema escuro é o padrão; o claro e o automático continuam em Configurações › Aparência.
 
 | Papel | Cor |
 |---|---|
-| Fundo principal / secundário | `#080A08` / `#101310` |
-| Superfície dos cards / elevada | `#151914` / `#1C211B` |
-| Bordas sutis | `#272D25` |
+| Fundo principal | `#050605` |
+| Cards principais / secundários | `#0C0F0B` / `#11150F` |
+| Superfícies elevadas (menus, folhas, botões secundários) | `#171C13` |
+| Bordas sutis | `#20271B` |
 | Verde-limão principal / secundário / suave | `#B7F500` / `#93C900` / `#D5FF69` |
 | Texto principal / secundário / discreto | `#F4F5F2` / `#A0A59B` / `#70766D` |
 | Receitas · despesas · informação · alerta · sucesso | `#B7F500` · `#F16B78` · `#6EA8FE` · `#F4B740` · `#8DDC73` |

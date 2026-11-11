@@ -60,7 +60,7 @@ export function CategoryIcon({ category, name, kind, className, size = "md" }: {
   return (
     <span
       className={cx(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl ring-1 ring-inset ring-black/5 dark:ring-white/10",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl ring-1 ring-inset ring-black/5 dark:ring-line",
         // no escuro o ícone clareia para não sumir no preto, mesmo com cores de categoria escuras
         "text-[color:color-mix(in_srgb,var(--cat)_85%,black)] dark:text-[color:color-mix(in_srgb,var(--cat)_60%,white)]",
         size === "sm" ? "size-8" : "size-10",

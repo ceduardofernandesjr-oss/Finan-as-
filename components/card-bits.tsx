@@ -5,8 +5,8 @@ export function CardVisual({ name, brand, color, institution }: { name: string; 
   // cartão elegante: base grafite com um toque da cor do cartão, sem brilhos exagerados
   return (
     <div
-      className="relative aspect-[1.7] w-full overflow-hidden rounded-[20px] p-4 text-slate-50 shadow-[0_16px_32px_-18px_rgb(0_0_0/0.85)] ring-1 ring-white/[0.08] sm:p-5"
-      style={{ background: `linear-gradient(140deg, ${color}38 0%, #1c211b 42%, #101310 100%)` }}
+      className="relative aspect-[1.7] w-full overflow-hidden rounded-[20px] p-4 text-slate-50 shadow-[0_16px_32px_-18px_rgb(0_0_0/0.85)] ring-1 ring-line sm:p-5"
+      style={{ background: `linear-gradient(140deg, ${color}33 0%, #11150f 45%, #0c0f0b 100%)` }}
     >
       <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
       <div className="flex items-start justify-between gap-2">
